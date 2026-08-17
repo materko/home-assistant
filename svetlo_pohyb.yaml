@@ -133,6 +133,32 @@ blueprint:
           selector:
             duration:
 
+        potvrdenie_okno:
+          name: Potvrdzovacie okno - volitelne
+          description: >
+            Po zapnuti svetla caka tento cas na to, ci occupancy senzor potvrdi,
+            ze v miestnosti niekto naozaj je. Ak sa nepotvrdi, svetlo hned zhasne.
+            Riesi falosne zopnutia, ked niekto len prejde okolo dveri.
+            Nula = vypnute, svetlo potom zostane svietit az do bezneho vypnutia
+            po odchode. Ma zmysel len ked su vyplnene senzory pritomnosti.
+          default:
+            minutes: 0
+            seconds: 0
+          selector:
+            duration:
+
+        potvrdenie_pir_off:
+          name: Potvrdzovacie okno - ako dlho musi PIR mlcat
+          description: >
+            Pocas potvrdzovacieho okna: ak PIR takto dlho nic nehlasi, berie sa to
+            ako nepotvrdene a svetlo zhasne bez cakania na cely timeout.
+            Uplatni sa len ked je potvrdzovacie okno zapnute.
+          default:
+            minutes: 1
+            seconds: 0
+          selector:
+            duration:
+
     nocny_rezim:
       name: Nocny rezim (volitelne)
       input:
@@ -192,6 +218,7 @@ variables:
   lux_senzory: !input lux_senzory
   lux_limit: !input lux_limit
   nocny_rezim_zapnuty: !input nocny_rezim_zapnuty
+  potvrdenie_okno: !input potvrdenie_okno
 
   # vsetky senzory, ktore rozhoduju o tom, ci je miestnost prazdna
   senzory_vsetky: "{{ (senzory_pohybu + senzory_pritomnosti) | unique | list }}"
@@ -206,6 +233,16 @@ variables:
     {{ hodnoty | min if hodnoty | count > 0 else -1 }}
 
   je_tma: "{{ lux_hodnota < 0 or lux_hodnota < lux_limit }}"
+
+  # potvrdzovacie okno v sekundach; nula znamena vypnute
+  potvrdenie_sekundy: >
+    {{ (potvrdenie_okno.hours | default(0)) * 3600
+       + (potvrdenie_okno.minutes | default(0)) * 60
+       + (potvrdenie_okno.seconds | default(0)) }}
+
+  # stav svetiel na zaciatku behu - potvrdzovanie sa uplatni len vtedy, ked
+  # svetlo rozsvietila tato automatizacia, nie ked uz svietilo (rucne zapnute)
+  svetla_boli_zhasnute: "{{ expand(svetla_vsetky) | selectattr('state', 'eq', 'on') | list | count == 0 }}"
 
 triggers:
   - id: pohyb
@@ -336,3 +373,41 @@ actions:
               - action: homeassistant.turn_off
                 target:
                   entity_id: "{{ svetla_vsetky }}"
+
+  - alias: Potvrdzovacie okno - zhasni, ak sa pritomnost nepotvrdila
+    if:
+      - condition: trigger
+        id: pohyb
+      - condition: template
+        value_template: "{{ potvrdenie_sekundy | int(0) > 0 }}"
+      - condition: template
+        value_template: "{{ senzory_pritomnosti | count > 0 }}"
+      - condition: template
+        value_template: "{{ svetla_boli_zhasnute }}"
+    then:
+      - alias: Cakaj na potvrdenie pritomnosti alebo na to, ze PIR stichol
+        wait_for_trigger:
+          - id: potvrdene
+            trigger: state
+            entity_id: !input senzory_pritomnosti
+            to: !input stavy_pohybu
+          - id: nepotvrdene
+            trigger: state
+            entity_id: !input senzory_pohybu
+            to: !input stavy_pokoja
+            for: !input potvrdenie_pir_off
+        timeout: !input potvrdenie_okno
+        continue_on_timeout: true
+      - alias: Nepotvrdene a nikto tam nie je - zhasni
+        if:
+          - condition: template
+            value_template: "{{ wait.trigger is none or wait.trigger.id == 'nepotvrdene' }}"
+          - condition: template
+            value_template: >
+              {{ expand(senzory_vsetky)
+                 | selectattr('state', 'in', stavy_pohybu)
+                 | list | count == 0 }}
+        then:
+          - action: homeassistant.turn_off
+            target:
+              entity_id: "{{ svetla_vsetky }}"

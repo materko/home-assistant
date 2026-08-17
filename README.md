@@ -40,6 +40,8 @@ Zvláda aj prípady, ktoré základný `motion_light` nepokrýva:
 | `svetla_pri_svetle` | nie | `[]` | prázdne = pri dostatku svetla sa nezapne nič |
 | `cakanie_po_odchode` | nie | 30 s | pokoj na všetkých senzoroch pred zhasnutím |
 | `max_cas_svietenia` | nie | 10 min | poistka |
+| `potvrdenie_okno` | nie | `0` = vypnuté | čakanie na potvrdenie prítomnosti, viď nižšie |
+| `potvrdenie_pir_off` | nie | 1 min | počas okna: ako dlho musí PIR mlčať |
 | `nocny_rezim_zapnuty` | nie | `false` | |
 | `nocny_od` / `nocny_do` | nie | 23:00 / 06:00 | |
 | `lux_senzory` | nie | `[]` | viac senzorov → berie sa najnižšia hodnota |
@@ -57,6 +59,26 @@ Vypína sa vždy zjednotenie všetkých troch sád, takže nezostane svietiť ni
 
 Bez lux senzorov sa vždy vyhodnocuje ako tma. Ak sú lux senzory nedostupné, správa sa
 to rovnako — radšej zapnúť než nechať človeka v tme.
+
+## Potvrdzovacie okno (voliteľné)
+
+PIR reaguje aj na niekoho, kto len prejde okolo dverí. Ak ti to vadí, nastav
+`potvrdenie_okno` napríklad na `1:45`. Po zapnutí svetla sa potom čaká, či occupancy
+senzor potvrdí, že v miestnosti niekto naozaj je:
+
+- **potvrdí sa** → svetlo svieti ďalej, zhasne až bežným spôsobom po odchode
+- **PIR stíchne** na `potvrdenie_pir_off` → berie sa to ako falošné zopnutie, zhasne hneď
+- **vyprší okno** bez potvrdenia → to isté
+
+Pred zhasnutím sa vždy ešte overí, že žiadny senzor nehlási prítomnosť.
+
+Dve poistky proti nechcenému zhasnutiu:
+
+- funguje len ak sú vyplnené **senzory prítomnosti** — so samotným PIR nie je čo potvrdzovať
+- uplatní sa len keď svetlo rozsvietila **táto automatizácia**. Ak už svietilo
+  (napr. si ho zapol ručne), potvrdzovanie sa preskočí a nikto ti ho nezhasne.
+
+Pri `0` (default) sa celý blok preskočí a blueprint sa správa ako predtým.
 
 ## Kedy sa zhasína
 
