@@ -1,5 +1,0 @@
-# Lovelace dashboard: map
-# Storage mode - export z .storage/lovelace.*
-
-strategy:
-  type: map
