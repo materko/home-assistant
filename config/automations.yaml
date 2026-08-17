@@ -1505,3 +1505,25 @@
       addon: 68413af6_git-exporter
     note: Add-on po dobehnuti sam prejde do stavu stopped - to je normalne, nie chyba.
   mode: single
+- id: '1786991124835'
+  alias: Zachod hore svetlo na pohyb
+  description: Blueprint svetlo_pohyb. Nahradza trojicu zachod_hore_zapnutie_svetla_ai
+    / zachod_hore_vypnutie / zachod_hore_vypnutie_10min. Senzor hlasi pohyb cez sensor.*_motion_state
+    (large/small), pritomnost cez binary_sensor.*_presence. Bez lux senzora.
+  use_blueprint:
+    path: svetlo_pohyb/svetlo_pohyb.yaml
+    input:
+      senzory_pohybu:
+      - sensor.0xa4c1388644c8589d_motion_state
+      senzory_pritomnosti:
+      - binary_sensor.0xa4c1388644c8589d_presence
+      svetla_hlavne:
+      - switch.0x54ef44100133a004
+      cakanie_po_odchode:
+        hours: 0
+        minutes: 0
+        seconds: 30
+      max_cas_svietenia:
+        hours: 0
+        minutes: 10
+        seconds: 0
