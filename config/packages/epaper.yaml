@@ -1,0 +1,8 @@
+rest_command:
+  trmnl_screen:
+    url: "https://trmnl.iveritas.eu/api/display/update?device_id=1"
+    method: POST
+    headers:
+      Authorization: "Bearer 2|Laxh15wyNtQ7u0AcdLhKMJTm8mNkmQiMbiKSPpKH908034ea"
+      Content-Type: "application/json"
+    payload: '{"markup": {{ markup | tojson }}}'

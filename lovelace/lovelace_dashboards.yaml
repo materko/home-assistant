@@ -1,0 +1,78 @@
+items:
+- icon: mdi:map
+  id: map
+  mode: storage
+  require_admin: false
+  show_in_sidebar: true
+  title: Map
+  url_path: map
+- icon: mdi:heat-pump
+  id: dashboard_rekuperacia
+  mode: storage
+  require_admin: false
+  show_in_sidebar: true
+  title: Rekuperacia
+  url_path: dashboard-rekuperacia
+- icon: mdi:pool-thermometer
+  id: dashboard_bazen
+  mode: storage
+  require_admin: false
+  show_in_sidebar: true
+  title: Bazen
+  url_path: dashboard-bazen
+- icon: mdi:battery-50
+  id: dashboard_baterie
+  mode: storage
+  require_admin: false
+  show_in_sidebar: true
+  title: Stav baterii
+  url_path: dashboard-baterie
+- icon: mdi:lightbulb-group
+  id: svetla_prehlad
+  mode: storage
+  require_admin: false
+  show_in_sidebar: true
+  title: Svetla - prehlad
+  url_path: svetla-prehlad
+- icon: mdi:home-thermometer
+  id: klima_prehlad
+  mode: storage
+  require_admin: false
+  show_in_sidebar: true
+  title: Klima - prehlad
+  url_path: klima-prehlad
+- icon: mdi:remote
+  id: vypinace_a_ovladace
+  mode: storage
+  require_admin: false
+  show_in_sidebar: true
+  title: Vypinace a ovladace
+  url_path: vypinace-a-ovladace
+- icon: mdi:multimedia
+  id: audio_video
+  mode: storage
+  require_admin: false
+  show_in_sidebar: true
+  title: Audio - Video
+  url_path: audio-video
+- icon: mdi:weather-hazy
+  id: dashboard_weather
+  mode: storage
+  require_admin: false
+  show_in_sidebar: true
+  title: Pocasie - meteostanica
+  url_path: dashboard-weather
+- icon: mdi:lightbulb-on-outline
+  id: svetla_novy
+  mode: storage
+  require_admin: false
+  show_in_sidebar: true
+  title: Svetla - novy
+  url_path: svetla-novy
+- icon: mdi:cctv
+  id: dashboard_kamery
+  mode: storage
+  require_admin: false
+  show_in_sidebar: true
+  title: Kamery
+  url_path: dashboard-kamery

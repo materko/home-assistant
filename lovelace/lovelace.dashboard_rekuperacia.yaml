@@ -1,0 +1,949 @@
+config:
+  title: Futura
+  views:
+  - icon: mdi:fan
+    max_columns: 3
+    path: futura
+    sections:
+    - cards:
+      - custom_fields:
+          content: "[[[\n  const st = (e) => states[e]?.state ?? '-';\n  const num\
+            \ = (e) => Number(states[e]?.state);\n\n  const airEntity = 'sensor.jablotron_futura_vzduchove_mnozstvi';\n\
+            \  const powerEntity = 'sensor.jablotron_futura_prikon';\n  const filterEntity\
+            \ = 'sensor.jablotron_futura_zaneseni_filtru';\n  const heatEntity = 'sensor.jablotron_futura_zpetne_ziskavane_teplo';\n\
+            \  const modeEntity = 'select.jablotron_futura_rezim_vetrani';\n  const\
+            \ errorEntity = 'binary_sensor.jablotron_futura_any_error';\n  const warningEntity\
+            \ = 'binary_sensor.jablotron_futura_any_warning';\n\n  const co2Entities\
+            \ = [\n    'sensor.jablotron_futura_senzor_1_co2',\n    'sensor.jablotron_futura_senzor_2_co2',\n\
+            \    'sensor.jablotron_futura_senzor_3_co2',\n    'sensor.jablotron_futura_ui_ovladac_1_co2'\n\
+            \  ];\n\n  const co2Values = co2Entities\n    .map(e => Number(states[e]?.state))\n\
+            \    .filter(v => Number.isFinite(v));\n\n  const maxCo2 = co2Values.length\
+            \ ? Math.max(...co2Values) : null;\n  const filter = num(filterEntity);\n\
+            \  const hasError = states[errorEntity]?.state === 'on';\n  const hasWarning\
+            \ = states[warningEntity]?.state === 'on';\n\n  const modeRaw = st(modeEntity);\n\
+            \  const modeText = modeRaw === 'Auto' ? 'Automatika' : (modeRaw === 'Vypnuto'\
+            \ ? 'Vypnut\xE9' : 'Stupe\u0148 ' + modeRaw + ' / 5');\n\n  let status\
+            \ = 'Vzduch je v poriadku';\n  let statusClass = 'ok';\n\n  if (hasError)\
+            \ {\n    status = 'Akt\xEDvna chyba syst\xE9mu';\n    statusClass = 'bad';\n\
+            \  } else if (Number.isFinite(filter) && filter >= 90) {\n    status =\
+            \ 'Filtre zanesen\xE9 \u2013 vymeni\u0165';\n    statusClass = 'bad';\n\
+            \  } else if (maxCo2 !== null && maxCo2 > 1500) {\n    status = 'Ve\u013E\
+            mi vysok\xE9 CO\u2082';\n    statusClass = 'bad';\n  } else if (Number.isFinite(filter)\
+            \ && filter > 60) {\n    status = 'Filtre sa bl\xED\u017Eia k v\xFDmene';\n\
+            \    statusClass = 'warn';\n  } else if (maxCo2 !== null && maxCo2 > 1000)\
+            \ {\n    status = 'Zv\xFD\u0161en\xE9 CO\u2082';\n    statusClass = 'warn';\n\
+            \  } else if (hasWarning) {\n    status = 'Akt\xEDvne varovanie';\n  \
+            \  statusClass = 'warn';\n  }\n\n  const co2Text = maxCo2 === null ? '-'\
+            \ : Math.round(maxCo2);\n\n  return `\n    <div class=\"futura-hero ${statusClass}\"\
+            >\n      <div class=\"hero-top\">\n        <div class=\"hero-icon\">\n\
+            \          <ha-icon icon=\"mdi:fan\"></ha-icon>\n        </div>\n    \
+            \    <div class=\"hero-main\">\n          <div class=\"hero-title\">Futura</div>\n\
+            \          <div class=\"hero-status\">${status}</div>\n        </div>\n\
+            \      </div>\n\n      <div class=\"mode-pill\">\n        <ha-icon icon=\"\
+            mdi:fan-auto\"></ha-icon>\n        <span>Re\u017Eim</span>\n        <strong>${modeText}</strong>\n\
+            \      </div>\n\n      <div class=\"main-values\">\n        <div class=\"\
+            main-metric\">\n          <div class=\"main-value\">${co2Text}</div>\n\
+            \          <div class=\"main-label\">max CO\u2082 ppm</div>\n        </div>\n\
+            \n        <div class=\"main-metric\">\n          <div class=\"main-value\"\
+            >${st(airEntity)}</div>\n          <div class=\"main-label\">vzduch m\xB3\
+            /h</div>\n        </div>\n      </div>\n\n      <div class=\"secondary-values\"\
+            >\n        <div class=\"secondary-metric\">\n          <ha-icon icon=\"\
+            mdi:flash\"></ha-icon>\n          <div>\n            <div class=\"secondary-value\"\
+            >${st(powerEntity)} W</div>\n            <div class=\"secondary-label\"\
+            >Pr\xEDkon</div>\n          </div>\n        </div>\n\n        <div class=\"\
+            secondary-metric\">\n          <ha-icon icon=\"mdi:air-filter\"></ha-icon>\n\
+            \          <div>\n            <div class=\"secondary-value\">${st(filterEntity)}\
+            \ %</div>\n            <div class=\"secondary-label\">Filtre</div>\n \
+            \         </div>\n        </div>\n\n        <div class=\"secondary-metric\
+            \ wide\">\n          <ha-icon icon=\"mdi:heat-wave\"></ha-icon>\n    \
+            \      <div>\n            <div class=\"secondary-value\">${st(heatEntity)}\
+            \ W</div>\n            <div class=\"secondary-label\">Z\xEDskan\xE9 teplo</div>\n\
+            \          </div>\n        </div>\n      </div>\n    </div>\n  `;\n]]]\n"
+        entity: sensor.jablotron_futura_vzduchove_mnozstvi
+        extra_styles: ".futura-hero {\n  min-height: 360px;\n  padding: 24px;\n  box-sizing:\
+          \ border-box;\n  color: white;\n  display: flex;\n  flex-direction: column;\n\
+          \  gap: 16px;\n  background: linear-gradient(135deg, #083344, #0369a1, #38bdf8);\n\
+          }\n\n.futura-hero.ok {\n  background: linear-gradient(135deg, #083344, #0369a1,\
+          \ #38bdf8);\n}\n\n.futura-hero.warn {\n  background: linear-gradient(135deg,\
+          \ #92400e, #f59e0b, #fbbf24);\n}\n\n.futura-hero.bad {\n  background: linear-gradient(135deg,\
+          \ #3b0d0d, #991b1b, #ef4444);\n}\n\n.hero-top {\n  display: flex;\n  align-items:\
+          \ center;\n  gap: 16px;\n}\n\n.hero-icon {\n  width: 64px;\n  height: 64px;\n\
+          \  border-radius: 22px;\n  display: flex;\n  align-items: center;\n  justify-content:\
+          \ center;\n  background: rgba(255,255,255,0.20);\n  flex-shrink: 0;\n}\n\
+          \n.hero-icon ha-icon {\n  --mdc-icon-size: 42px;\n  color: white;\n}\n\n\
+          .hero-title {\n  font-size: 36px;\n  line-height: 1;\n  font-weight: 950;\n\
+          }\n\n.hero-status {\n  margin-top: 8px;\n  font-size: 16px;\n  font-weight:\
+          \ 850;\n  opacity: 0.96;\n}\n\n.mode-pill {\n  display: flex;\n  align-items:\
+          \ center;\n  gap: 8px;\n  width: fit-content;\n  padding: 9px 13px;\n  border-radius:\
+          \ 999px;\n  background: rgba(255,255,255,0.20);\n  font-size: 13px;\n  font-weight:\
+          \ 750;\n}\n\n.mode-pill ha-icon {\n  --mdc-icon-size: 18px;\n  color: white;\n\
+          }\n\n.mode-pill strong {\n  font-size: 15px;\n  font-weight: 950;\n}\n\n\
+          .main-values {\n  display: grid;\n  grid-template-columns: repeat(2, minmax(0,\
+          \ 1fr));\n  gap: 14px;\n}\n\n.main-metric {\n  border-radius: 24px;\n  padding:\
+          \ 20px 16px;\n  background: rgba(255,255,255,0.22);\n  min-width: 0;\n}\n\
+          \n.main-value {\n  font-size: 42px;\n  line-height: 1;\n  font-weight: 950;\n\
+          \  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n\
+          }\n\n.main-label {\n  margin-top: 10px;\n  font-size: 12px;\n  font-weight:\
+          \ 850;\n  text-transform: uppercase;\n  letter-spacing: 0.07em;\n  opacity:\
+          \ 0.92;\n}\n\n.secondary-values {\n  display: grid;\n  grid-template-columns:\
+          \ repeat(2, minmax(0, 1fr));\n  gap: 12px;\n}\n\n.secondary-metric {\n \
+          \ display: flex;\n  align-items: center;\n  gap: 12px;\n  border-radius:\
+          \ 20px;\n  padding: 14px;\n  background: rgba(255,255,255,0.17);\n  min-width:\
+          \ 0;\n}\n\n.secondary-metric.wide {\n  grid-column: 1 / -1;\n}\n\n.secondary-metric\
+          \ ha-icon {\n  --mdc-icon-size: 28px;\n  color: white;\n  flex-shrink: 0;\n\
+          }\n\n.secondary-value {\n  font-size: 22px;\n  line-height: 1;\n  font-weight:\
+          \ 900;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n\
+          }\n\n.secondary-label {\n  margin-top: 6px;\n  font-size: 12px;\n  font-weight:\
+          \ 800;\n  text-transform: uppercase;\n  letter-spacing: 0.05em;\n  opacity:\
+          \ 0.88;\n}\n"
+        show_icon: false
+        show_name: false
+        show_state: false
+        styles:
+          card:
+          - border-radius: 32px
+          - padding: 0
+          - overflow: hidden
+          - min-height: 360px
+          - box-shadow: 0 14px 36px rgba(0,0,0,0.20)
+          custom_fields:
+            content:
+            - width: 100%
+            - height: 100%
+          grid:
+          - grid-template-areas: '"content"'
+          - grid-template-columns: 1fr
+          - grid-template-rows: 1fr
+        tap_action:
+          action: more-info
+        type: custom:button-card
+      - heading: Miestnosti
+        heading_style: title
+        icon: mdi:home-analytics
+        type: heading
+      - card_mod:
+          style: "ha-card {\n  border-radius: 26px;\n  overflow: hidden;\n  box-shadow:\
+            \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+        cards:
+        - card:
+            icon: mdi:home-analytics
+            icon_color: '{% set co2 = states(''sensor.jablotron_futura_senzor_1_co2'')|float(0)
+              %} {{ ''red'' if co2 > 1500 else ''orange'' if co2 > 1000 else ''blue''
+              }}
+
+              '
+            multiline_secondary: true
+            primary: '{% set adr = states(''sensor.jablotron_futura_senzor_1_adresa'')
+              %} Izba {{ adr if adr not in [''unknown'',''unavailable'',''''] else
+              ''1'' }}
+
+              '
+            secondary: "CO\u2082: {{ states('sensor.jablotron_futura_senzor_1_co2')\
+              \ }} ppm \xB7 Teplota: {{ states('sensor.jablotron_futura_senzor_1_teplota')\
+              \ }} \xB0C \xB7 Vlhkos\u0165: {{ states('sensor.jablotron_futura_senzor_1_vlhkost')\
+              \ }} %\n"
+            type: custom:mushroom-template-card
+          conditions:
+          - entity: sensor.jablotron_futura_senzor_1_co2
+            state_not: unavailable
+          - entity: sensor.jablotron_futura_senzor_1_co2
+            state_not: unknown
+          type: conditional
+        - card:
+            icon: mdi:home-analytics
+            icon_color: '{% set co2 = states(''sensor.jablotron_futura_senzor_2_co2'')|float(0)
+              %} {{ ''red'' if co2 > 1500 else ''orange'' if co2 > 1000 else ''blue''
+              }}
+
+              '
+            multiline_secondary: true
+            primary: '{% set adr = states(''sensor.jablotron_futura_senzor_2_adresa'')
+              %} Izba {{ adr if adr not in [''unknown'',''unavailable'',''''] else
+              ''2'' }}
+
+              '
+            secondary: "CO\u2082: {{ states('sensor.jablotron_futura_senzor_2_co2')\
+              \ }} ppm \xB7 Teplota: {{ states('sensor.jablotron_futura_senzor_2_teplota')\
+              \ }} \xB0C \xB7 Vlhkos\u0165: {{ states('sensor.jablotron_futura_senzor_2_vlhkost')\
+              \ }} %\n"
+            type: custom:mushroom-template-card
+          conditions:
+          - entity: sensor.jablotron_futura_senzor_2_co2
+            state_not: unavailable
+          - entity: sensor.jablotron_futura_senzor_2_co2
+            state_not: unknown
+          type: conditional
+        - card:
+            icon: mdi:home-analytics
+            icon_color: '{% set co2 = states(''sensor.jablotron_futura_senzor_3_co2'')|float(0)
+              %} {{ ''red'' if co2 > 1500 else ''orange'' if co2 > 1000 else ''blue''
+              }}
+
+              '
+            multiline_secondary: true
+            primary: '{% set adr = states(''sensor.jablotron_futura_senzor_3_adresa'')
+              %} Izba {{ adr if adr not in [''unknown'',''unavailable'',''''] else
+              ''3'' }}
+
+              '
+            secondary: "CO\u2082: {{ states('sensor.jablotron_futura_senzor_3_co2')\
+              \ }} ppm \xB7 Teplota: {{ states('sensor.jablotron_futura_senzor_3_teplota')\
+              \ }} \xB0C \xB7 Vlhkos\u0165: {{ states('sensor.jablotron_futura_senzor_3_vlhkost')\
+              \ }} %\n"
+            type: custom:mushroom-template-card
+          conditions:
+          - entity: sensor.jablotron_futura_senzor_3_co2
+            state_not: unavailable
+          - entity: sensor.jablotron_futura_senzor_3_co2
+            state_not: unknown
+          type: conditional
+        - card:
+            icon: mdi:gesture-tap-button
+            icon_color: '{% set co2 = states(''sensor.jablotron_futura_ui_ovladac_1_co2'')|float(0)
+              %} {{ ''red'' if co2 > 1500 else ''orange'' if co2 > 1000 else ''blue''
+              }}
+
+              '
+            multiline_secondary: true
+            primary: "{% set adr = states('sensor.jablotron_futura_ui_ovladac_1_adresa')\
+              \ %} Ovl\xE1da\u010D {{ adr if adr not in ['unknown','unavailable','']\
+              \ else '1' }}\n"
+            secondary: "CO\u2082: {{ states('sensor.jablotron_futura_ui_ovladac_1_co2')\
+              \ }} ppm \xB7 Teplota: {{ states('sensor.jablotron_futura_ui_ovladac_1_teplota')\
+              \ }} \xB0C \xB7 Vlhkos\u0165: {{ states('sensor.jablotron_futura_ui_ovladac_1_vlhkost')\
+              \ }} %\n"
+            type: custom:mushroom-template-card
+          conditions:
+          - entity: sensor.jablotron_futura_ui_ovladac_1_co2
+            state_not: unavailable
+          - entity: sensor.jablotron_futura_ui_ovladac_1_co2
+            state_not: unknown
+          type: conditional
+        mode: vertical
+        type: custom:stack-in-card
+      type: grid
+    - cards:
+      - heading: "Ovl\xE1danie"
+        heading_style: title
+        icon: mdi:tune
+        type: heading
+      - card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  box-shadow: 0 8px 24px rgba(0,0,0,0.10);\n\
+            }\n"
+        entity: select.jablotron_futura_rezim_vetrani
+        fill_container: true
+        icon: mdi:fan-auto
+        name: "Re\u017Eim vetrania"
+        type: custom:mushroom-select-card
+      - cards:
+        - card_mod:
+            style: "ha-card {\n  border-radius: 24px;\n  background: linear-gradient(135deg,\
+              \ rgba(14,165,233,0.16), rgba(59,130,246,0.08));\n}\n"
+          fill_container: true
+          hold_action:
+            action: perform-action
+            data:
+              value: 0
+            perform_action: number.set_value
+            target:
+              entity_id: number.jablotron_futura_boost_minuty
+          icon: mdi:fan-plus
+          icon_color: "{% if states('sensor.jablotron_futura_boost_zbyva_min')|int(0)\
+            \ > 0 %}\n  blue\n{% else %}\n  grey\n{% endif %}\n"
+          layout: vertical
+          primary: Boost
+          secondary: '{{ states(''sensor.jablotron_futura_boost_zbyva_min'') }} min'
+          tap_action:
+            action: perform-action
+            perform_action: button.press
+            target:
+              entity_id: button.jablotron_futura_spustit_boost_60_min
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: "ha-card {\n  border-radius: 24px;\n  background: linear-gradient(135deg,\
+              \ rgba(14,165,233,0.16), rgba(59,130,246,0.08));\n}\n"
+          fill_container: true
+          hold_action:
+            action: perform-action
+            data:
+              value: 0
+            perform_action: number.set_value
+            target:
+              entity_id: number.jablotron_futura_cirkulace_minuty
+          icon: mdi:autorenew
+          icon_color: "{% if states('sensor.jablotron_futura_cirkulace_zbyva_min')|int(0)\
+            \ > 0 %}\n  blue\n{% else %}\n  grey\n{% endif %}\n"
+          layout: vertical
+          primary: "Cirkul\xE1cia"
+          secondary: '{{ states(''sensor.jablotron_futura_cirkulace_zbyva_min'') }}
+            min'
+          tap_action:
+            action: perform-action
+            perform_action: button.press
+            target:
+              entity_id: button.jablotron_futura_spustit_cirkulaci_30_min
+          type: custom:mushroom-template-card
+        columns: 2
+        square: false
+        type: grid
+      - heading: Nastavenia
+        heading_style: subtitle
+        icon: mdi:cog-outline
+        type: heading
+      - cards:
+        - icon: mdi:thermometer-check
+          icon_color: orange
+          layout: vertical
+          primary: Teplota
+          secondary: "{{ states('number.jablotron_futura_pozadovana_teplota') }} \xB0\
+            C"
+          tap_action:
+            action: more-info
+            entity: number.jablotron_futura_pozadovana_teplota
+          type: custom:mushroom-template-card
+        - icon: mdi:water-check
+          icon_color: cyan
+          layout: vertical
+          primary: "Vlhkos\u0165"
+          secondary: '{{ states(''select.jablotron_futura_pozadovana_vlhkost'') }}'
+          tap_action:
+            action: more-info
+            entity: select.jablotron_futura_pozadovana_vlhkost
+          type: custom:mushroom-template-card
+        - icon: mdi:weather-night
+          icon_color: indigo
+          layout: vertical
+          primary: Noc
+          secondary: '{{ states(''number.jablotron_futura_noc_hodiny'') }} h'
+          tap_action:
+            action: more-info
+            entity: number.jablotron_futura_noc_hodiny
+          type: custom:mushroom-template-card
+        - icon: mdi:party-popper
+          icon_color: blue
+          layout: vertical
+          primary: Party
+          secondary: '{{ states(''number.jablotron_futura_party_hodiny'') }} h'
+          tap_action:
+            action: more-info
+            entity: number.jablotron_futura_party_hodiny
+          type: custom:mushroom-template-card
+        columns: 2
+        square: false
+        type: grid
+      - cards:
+        - entity: switch.jablotron_futura_bypass_povolen
+          icon: mdi:valve
+          name: Bypass
+          type: tile
+        - entity: switch.jablotron_futura_casovy_program
+          icon: mdi:calendar-clock
+          name: Program
+          type: tile
+        - entity: switch.jablotron_futura_komfortni_rezim
+          icon: mdi:sofa
+          name: Komfort
+          type: tile
+        - entity: switch.jablotron_futura_topeni_povoleno
+          icon: mdi:radiator
+          name: "K\xFArenie"
+          type: tile
+        - entity: switch.jablotron_futura_chlazeni_povoleno
+          icon: mdi:snowflake
+          name: Chladenie
+          type: tile
+        columns: 1
+        square: false
+        type: grid
+      - card:
+          card_mod:
+            style: "ha-card {\n  border-radius: 26px;\n  overflow: hidden;\n  background:\
+              \ linear-gradient(135deg, rgba(14,165,233,0.16), rgba(59,130,246,0.08));\n\
+              \  box-shadow: 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+          cards:
+          - icon: mdi:beach
+            icon_color: blue
+            multiline_secondary: true
+            primary: "Dovolenka je nastaven\xE1"
+            secondary: 'Od {{ states(''sensor.jablotron_futura_dovolena_zacatek'')
+              }} do {{ states(''sensor.jablotron_futura_dovolena_konec'') }}
+
+              '
+            type: custom:mushroom-template-card
+          - icon: mdi:beach-off
+            icon_color: grey
+            primary: "Zru\u0161i\u0165 dovolenku"
+            secondary: "Vypne dovolenkov\xFD re\u017Eim"
+            tap_action:
+              action: perform-action
+              perform_action: jablotron_futura.clear_away
+            type: custom:mushroom-template-card
+          mode: vertical
+          type: custom:stack-in-card
+        conditions:
+        - condition: state
+          entity: binary_sensor.futura_dovolenka_aktivna
+          state: 'on'
+        type: conditional
+      - card:
+          card_mod:
+            style: "ha-card {\n  border-radius: 24px;\n  background: linear-gradient(135deg,\
+              \ rgba(14,165,233,0.16), rgba(59,130,246,0.08));\n  box-shadow: 0 8px\
+              \ 24px rgba(0,0,0,0.10);\n}\n"
+          icon: mdi:beach
+          icon_color: blue
+          primary: "Nastavi\u0165 dovolenku"
+          secondary: "Dovolenka nie je nastaven\xE1"
+          tap_action:
+            action: perform-action
+            perform_action: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.futura_dovolenka_editor
+          type: custom:mushroom-template-card
+        conditions:
+        - condition: state
+          entity: binary_sensor.futura_dovolenka_aktivna
+          state: 'off'
+        - condition: state
+          entity: input_boolean.futura_dovolenka_editor
+          state: 'off'
+        type: conditional
+      - card:
+          card_mod:
+            style: "ha-card {\n  border-radius: 26px;\n  overflow: hidden;\n  background:\
+              \ linear-gradient(135deg, rgba(14,165,233,0.16), rgba(59,130,246,0.08));\n\
+              \  box-shadow: 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+          cards:
+          - icon: mdi:calendar-edit
+            icon_color: blue
+            primary: "Nov\xE1 dovolenka"
+            secondary: "Zadaj za\u010Diatok a koniec"
+            type: custom:mushroom-template-card
+          - card_mod:
+              style: "ha-card {\n  --ha-card-border-width: 0;\n}\nha-card .card-content\
+                \ {\n  padding: 8px 10px !important;\n}\nhui-input-datetime-entity-row\
+                \ {\n  --mdc-typography-body1-font-size: 13px;\n}\nhui-input-datetime-entity-row\
+                \ $ hui-generic-entity-row $ state-badge {\n  display: none;\n}\n\
+                hui-input-datetime-entity-row $ hui-generic-entity-row $ .info {\n\
+                \  margin-left: 0;\n  flex: 0 0 34px;\n  font-size: 12px;\n}\n"
+            entities:
+            - entity: input_datetime.futura_dovolenka_od
+              name: Od
+            - entity: input_datetime.futura_dovolenka_do
+              name: Do
+            show_header_toggle: false
+            type: entities
+          - cards:
+            - icon: mdi:check-circle
+              icon_color: green
+              layout: vertical
+              primary: "Potvrdi\u0165"
+              secondary: "Zap\xEDsa\u0165 do jednotky"
+              tap_action:
+                action: perform-action
+                perform_action: script.futura_nastavit_dovolenku
+              type: custom:mushroom-template-card
+            - icon: mdi:close-circle
+              icon_color: grey
+              layout: vertical
+              primary: "Zru\u0161i\u0165"
+              secondary: "Zavrie\u0165 bez zmeny"
+              tap_action:
+                action: perform-action
+                perform_action: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.futura_dovolenka_editor
+              type: custom:mushroom-template-card
+            columns: 2
+            square: false
+            type: grid
+          mode: vertical
+          type: custom:stack-in-card
+        conditions:
+        - condition: state
+          entity: binary_sensor.futura_dovolenka_aktivna
+          state: 'off'
+        - condition: state
+          entity: input_boolean.futura_dovolenka_editor
+          state: 'on'
+        type: conditional
+      type: grid
+    - cards:
+      - badges:
+        - entity: sensor.jablotron_futura_zaneseni_filtru
+          type: entity
+        heading: "Technol\xF3gia"
+        heading_style: title
+        icon: mdi:hvac
+        type: heading
+      - custom_fields:
+          content: "[[[\n  const t = (e) => { const v = Number(states[e]?.state);\
+            \ return Number.isFinite(v) ? v.toFixed(1) : '\u2013'; };\n  const s =\
+            \ (e) => states[e]?.state ?? '\u2013';\n\n  const venku = t('sensor.jablotron_futura_teplota_venku');\n\
+            \  const doDomu = t('sensor.jablotron_futura_teplota_do_domu');\n  const\
+            \ zDomu = t('sensor.jablotron_futura_teplota_z_domu');\n  const odtah\
+            \ = t('sensor.jablotron_futura_teplota_odtah');\n  const rek = s('sensor.jablotron_futura_zpetne_ziskavane_teplo');\n\
+            \  const vzduch = s('sensor.jablotron_futura_vzduchove_mnozstvi');\n \
+            \ const bypass = states['switch.jablotron_futura_bypass_povolen']?.state\
+            \ === 'on';\n\n  return `\n    <div class=\"fl\">\n      <div class=\"\
+            cell c1\">\n        <div class=\"lbl\">Nas\xE1van\xE9</div>\n        <div\
+            \ class=\"tmp cold\">${venku} \xB0C</div>\n      </div>\n      <div class=\"\
+            arw cold\">&#10230;</div>\n      <div class=\"unit\">\n        <div class=\"\
+            ux\">&#10005;</div>\n        <div class=\"uw\">${rek} W</div>\n      \
+            \  <div class=\"ul\">rekuper\xE1cia</div>\n        <div class=\"byp ${bypass\
+            \ ? 'on' : 'off'}\">Bypass ${bypass ? 'otvoren\xFD' : 'zatvoren\xFD'}</div>\n\
+            \        <div class=\"uv\">${vzduch} m\xB3/h</div>\n      </div>\n   \
+            \   <div class=\"arw cold\">&#10230;</div>\n      <div class=\"cell c2\"\
+            >\n        <div class=\"lbl\">Do domu</div>\n        <div class=\"tmp\
+            \ cold\">${doDomu} \xB0C</div>\n      </div>\n\n      <div class=\"cell\
+            \ c3\">\n        <div class=\"lbl\">Odpad von</div>\n        <div class=\"\
+            tmp warm\">${odtah} \xB0C</div>\n      </div>\n      <div class=\"arw\
+            \ warm\">&#10229;</div>\n      <div class=\"arw warm\">&#10229;</div>\n\
+            \      <div class=\"cell c4\">\n        <div class=\"lbl\">Z domu</div>\n\
+            \        <div class=\"tmp warm\">${zDomu} \xB0C</div>\n      </div>\n\
+            \    </div>\n  `;\n]]]\n"
+        entity: sensor.jablotron_futura_zpetne_ziskavane_teplo
+        extra_styles: ".fl {\n  display: grid;\n  grid-template-columns: 1fr 26px\
+          \ auto 26px 1fr;\n  grid-template-rows: auto auto;\n  align-items: center;\n\
+          \  gap: 8px;\n  padding: 18px 14px;\n  box-sizing: border-box;\n}\n.unit\
+          \ {\n  grid-column: 3;\n  grid-row: 1 / span 2;\n  text-align: center;\n\
+          \  padding: 12px 14px;\n  border-radius: 20px;\n  background: rgba(148,163,184,0.16);\n\
+          \  min-width: 108px;\n}\n.ux { font-size: 26px; line-height: 1; opacity:\
+          \ 0.55; }\n.uw { font-size: 21px; font-weight: 900; margin-top: 6px; }\n\
+          .ul { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;\
+          \ opacity: 0.7; }\n.uv { font-size: 12px; font-weight: 700; margin-top:\
+          \ 8px; opacity: 0.8; }\n.byp { margin-top: 9px; font-size: 11px; font-weight:\
+          \ 800; padding: 4px 8px; border-radius: 999px; }\n.byp.on { background:\
+          \ rgba(34,197,94,0.22); }\n.byp.off { background: rgba(148,163,184,0.25);\
+          \ }\n.cell { text-align: center; min-width: 0; }\n.c1 { grid-column: 1;\
+          \ grid-row: 1; }\n.c2 { grid-column: 5; grid-row: 1; }\n.c3 { grid-column:\
+          \ 1; grid-row: 2; }\n.c4 { grid-column: 5; grid-row: 2; }\n.lbl { font-size:\
+          \ 11px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.72;\
+          \ }\n.tmp { font-size: 25px; font-weight: 900; line-height: 1.15; }\n.tmp.cold\
+          \ { color: #0284c7; }\n.tmp.warm { color: #ea580c; }\n.arw { font-size:\
+          \ 20px; text-align: center; }\n.arw.cold { color: #0284c7; }\n.arw.warm\
+          \ { color: #ea580c; }\n"
+        show_icon: false
+        show_name: false
+        show_state: false
+        styles:
+          card:
+          - border-radius: 26px
+          - padding: '0'
+          - box-shadow: 0 8px 24px rgba(0,0,0,0.12)
+          custom_fields:
+            content:
+            - width: 100%
+          grid:
+          - grid-template-areas: '"content"'
+          - grid-template-columns: 1fr
+          - grid-template-rows: 1fr
+        tap_action:
+          action: more-info
+        type: custom:button-card
+      - card_mod:
+          style: "ha-card {\n  border-radius: 26px;\n  overflow: hidden;\n  box-shadow:\
+            \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+        cards:
+        - icon: mdi:air-filter
+          icon_color: blue
+          primary: "Nas\xE1van\xFD vzduch"
+          secondary: "Teplota: {{ states('sensor.jablotron_futura_teplota_venku')\
+            \ }} \xB0C \xB7 Vlhkos\u0165: {{ states('sensor.jablotron_futura_vlhkost_venku')\
+            \ }} %"
+          type: custom:mushroom-template-card
+        - icon: mdi:weather-partly-cloudy
+          icon_color: cyan
+          primary: Vonku (meteostanica)
+          secondary: "Teplota: {{ states('sensor.izohor9_temperature') }} \xB0C \xB7\
+            \ Vlhkos\u0165: {{ states('sensor.izohor9_relative_humidity') }} %"
+          type: custom:mushroom-template-card
+        - icon: mdi:home-import-outline
+          icon_color: cyan
+          primary: Vzduch do domu
+          secondary: "Teplota: {{ states('sensor.jablotron_futura_teplota_do_domu')\
+            \ }} \xB0C \xB7 Vlhkos\u0165: {{ states('sensor.jablotron_futura_vlhkost_do_domu')\
+            \ }} %\n"
+          type: custom:mushroom-template-card
+        - icon: mdi:home-export-outline
+          icon_color: indigo
+          primary: Vzduch z domu
+          secondary: "Teplota: {{ states('sensor.jablotron_futura_teplota_z_domu')\
+            \ }} \xB0C \xB7 Vlhkos\u0165: {{ states('sensor.jablotron_futura_vlhkost_z_domu')\
+            \ }} %\n"
+          type: custom:mushroom-template-card
+        - icon: mdi:fan
+          icon_color: blue
+          primary: "Ventil\xE1tory"
+          secondary: "Pr\xEDvod: {{ states('sensor.jablotron_futura_otacky_ventilatoru_privod')\
+            \ }} \xB7 Od\u0165ah: {{ states('sensor.jablotron_futura_otacky_ventilatoru_odtah')\
+            \ }}\n"
+          type: custom:mushroom-template-card
+        - icon: mdi:fan-auto
+          icon_color: cyan
+          primary: "Aktu\xE1lny re\u017Eim"
+          secondary: "{% set m = states('select.jablotron_futura_rezim_vetrani') %}{{\
+            \ 'Automatika' if m == 'Auto' else ('Vypnut\xE9' if m == 'Vypnuto' else\
+            \ 'Stupe\u0148 ' ~ m ~ ' / 5') }}"
+          type: custom:mushroom-template-card
+        mode: vertical
+        type: custom:stack-in-card
+      - card:
+          show_header_toggle: false
+          state_color: true
+          title: "Akt\xEDvne chyby a varovania"
+          type: entities
+        filter:
+          include:
+          - entity_id: binary_sensor.jablotron_futura_error_*
+            state: 'on'
+          - entity_id: binary_sensor.jablotron_futura_warning_bit_*
+            state: 'on'
+        show_empty: false
+        type: custom:auto-entities
+      - entities:
+        - entity: binary_sensor.jablotron_futura_antiradon_active
+          name: "Protirad\xF3n"
+        - entity: sensor.jablotron_futura_napeti_baterie_rtc
+          name: "Bat\xE9ria RTC"
+        - entity: sensor.jablotron_futura_vykon_topeni_dohrevu
+          name: "V\xFDkon dohrevu"
+        - entity: sensor.jablotron_futura_rezim_vetrani_text
+          name: "Aktu\xE1lny re\u017Eim"
+        show_header_toggle: false
+        state_color: true
+        title: Servis
+        type: entities
+      - heading: "R\xFDchle trendy"
+        heading_style: subtitle
+        icon: mdi:chart-line
+        type: heading
+      - cards:
+        - animate: true
+          color_thresholds:
+          - color: '#64748b'
+            value: 0
+          - color: '#0ea5e9'
+            value: 80
+          - color: '#0284c7'
+            value: 180
+          entities:
+          - entity: sensor.jablotron_futura_vzduchove_mnozstvi
+            name: Vzduch
+          font_size: 80
+          hours_to_show: 24
+          icon: mdi:weather-windy
+          line_width: 4
+          name: Vzduch
+          points_per_hour: 2
+          show:
+            average: false
+            extrema: true
+            fill: fade
+          type: custom:mini-graph-card
+        - animate: true
+          color_thresholds:
+          - color: '#38bdf8'
+            value: 0
+          - color: '#f59e0b'
+            value: 100
+          - color: '#ef4444'
+            value: 250
+          entities:
+          - entity: sensor.jablotron_futura_prikon
+            name: "Pr\xEDkon"
+          font_size: 80
+          hours_to_show: 24
+          icon: mdi:flash
+          line_width: 4
+          name: "Pr\xEDkon"
+          points_per_hour: 2
+          show:
+            average: false
+            extrema: true
+            fill: fade
+          type: custom:mini-graph-card
+        - animate: true
+          color_thresholds:
+          - color: '#22c55e'
+            value: 0
+          - color: '#f59e0b'
+            value: 50
+          - color: '#ef4444'
+            value: 80
+          entities:
+          - entity: sensor.jablotron_futura_zaneseni_filtru
+            name: Filtre
+          font_size: 80
+          hours_to_show: 168
+          icon: mdi:air-filter
+          line_width: 4
+          name: Filtre
+          points_per_hour: 0.25
+          show:
+            average: false
+            extrema: true
+            fill: fade
+          type: custom:mini-graph-card
+        - animate: true
+          color_thresholds:
+          - color: '#38bdf8'
+            value: 0
+          - color: '#0ea5e9'
+            value: 500
+          - color: '#2563eb'
+            value: 1500
+          entities:
+          - entity: sensor.jablotron_futura_zpetne_ziskavane_teplo
+            name: "Rekuper\xE1cia"
+          font_size: 80
+          hours_to_show: 24
+          icon: mdi:heat-wave
+          line_width: 4
+          name: "Rekuper\xE1cia"
+          points_per_hour: 2
+          show:
+            average: false
+            extrema: true
+            fill: fade
+          type: custom:mini-graph-card
+        columns: 2
+        square: false
+        type: grid
+      - card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  background: linear-gradient(135deg,\
+            \ rgba(14,165,233,0.16), rgba(59,130,246,0.08));\n  box-shadow: 0 8px\
+            \ 24px rgba(0,0,0,0.10);\n}\n"
+        icon: mdi:chart-line
+        icon_color: blue
+        primary: "Detailn\xE9 grafy"
+        secondary: "CO\u2082, teploty, vlhkos\u0165, v\xFDkon a rekuper\xE1cia"
+        tap_action:
+          action: navigate
+          navigation_path: /futura/grafy
+        type: custom:mushroom-template-card
+      type: grid
+    title: Futura
+    type: sections
+  - icon: mdi:chart-line
+    max_columns: 2
+    path: grafy
+    sections:
+    - cards:
+      - subtitle: "posledn\xFDch 24 hod\xEDn"
+        title: "CO\u2082"
+        type: custom:mushroom-title-card
+      - apex_config:
+          annotations:
+            yaxis:
+            - borderColor: '#f59e0b'
+              label:
+                text: "Zv\xFD\u0161en\xE9 CO\u2082"
+              y: 1000
+            - borderColor: '#ef4444'
+              label:
+                text: "Vysok\xE9 CO\u2082"
+              y: 1500
+          chart:
+            height: 340
+            toolbar:
+              show: false
+          grid:
+            borderColor: rgba(148,163,184,0.25)
+          stroke:
+            curve: smooth
+            width: 3
+        graph_span: 24h
+        header:
+          colorize_states: true
+          show: true
+          show_states: true
+          title: "CO\u2082 v miestnostiach"
+        series:
+        - color: '#0284c7'
+          entity: sensor.jablotron_futura_senzor_1_co2
+          group_by:
+            duration: 10min
+            func: avg
+          name: Senzor 1
+        - color: '#0ea5e9'
+          entity: sensor.jablotron_futura_senzor_2_co2
+          group_by:
+            duration: 10min
+            func: avg
+          name: Senzor 2
+        - color: '#38bdf8'
+          entity: sensor.jablotron_futura_senzor_3_co2
+          group_by:
+            duration: 10min
+            func: avg
+          name: Senzor 3
+        - color: '#2563eb'
+          entity: sensor.jablotron_futura_ui_ovladac_1_co2
+          group_by:
+            duration: 10min
+            func: avg
+          name: "Ovl\xE1da\u010D"
+        type: custom:apexcharts-card
+        yaxis:
+        - decimals: 0
+          min: 300
+      column_span: 2
+      type: grid
+    - cards:
+      - subtitle: "pr\xFAdenie vzduchu cez jednotku"
+        title: Teploty
+        type: custom:mushroom-title-card
+      - apex_config:
+          chart:
+            height: 320
+            toolbar:
+              show: false
+          grid:
+            borderColor: rgba(148,163,184,0.25)
+          stroke:
+            curve: smooth
+            width: 3
+        graph_span: 24h
+        header:
+          colorize_states: true
+          show: true
+          show_states: true
+          title: Teploty Futura
+        series:
+        - color: '#60a5fa'
+          entity: sensor.jablotron_futura_teplota_venku
+          group_by:
+            duration: 10min
+            func: avg
+          name: Vonku
+        - color: '#0ea5e9'
+          entity: sensor.jablotron_futura_teplota_do_domu
+          group_by:
+            duration: 10min
+            func: avg
+          name: Do domu
+        - color: '#2563eb'
+          entity: sensor.jablotron_futura_teplota_z_domu
+          group_by:
+            duration: 10min
+            func: avg
+          name: Z domu
+        type: custom:apexcharts-card
+        yaxis:
+        - decimals: 1
+      type: grid
+    - cards:
+      - subtitle: jednotka a miestnosti
+        title: "Vlhkos\u0165"
+        type: custom:mushroom-title-card
+      - apex_config:
+          chart:
+            height: 320
+            toolbar:
+              show: false
+          grid:
+            borderColor: rgba(148,163,184,0.25)
+          stroke:
+            curve: smooth
+            width: 3
+        graph_span: 24h
+        header:
+          colorize_states: true
+          show: true
+          show_states: true
+          title: "Vlhkos\u0165 vzduchu"
+        series:
+        - color: '#60a5fa'
+          entity: sensor.jablotron_futura_vlhkost_venku
+          group_by:
+            duration: 10min
+            func: avg
+          name: Vonku
+        - color: '#0ea5e9'
+          entity: sensor.jablotron_futura_vlhkost_do_domu
+          group_by:
+            duration: 10min
+            func: avg
+          name: Do domu
+        - color: '#2563eb'
+          entity: sensor.jablotron_futura_vlhkost_z_domu
+          group_by:
+            duration: 10min
+            func: avg
+          name: Z domu
+        - color: '#38bdf8'
+          entity: sensor.jablotron_futura_senzor_1_vlhkost
+          group_by:
+            duration: 10min
+            func: avg
+          name: Senzor 1
+        - color: '#0284c7'
+          entity: sensor.jablotron_futura_senzor_2_vlhkost
+          group_by:
+            duration: 10min
+            func: avg
+          name: Senzor 2
+        - color: '#075985'
+          entity: sensor.jablotron_futura_senzor_3_vlhkost
+          group_by:
+            duration: 10min
+            func: avg
+          name: Senzor 3
+        type: custom:apexcharts-card
+        yaxis:
+        - decimals: 0
+          max: 100
+          min: 0
+      type: grid
+    - cards:
+      - subtitle: "posledn\xFDch 7 dn\xED"
+        title: "V\xFDkon"
+        type: custom:mushroom-title-card
+      - apex_config:
+          chart:
+            height: 340
+            toolbar:
+              show: false
+          grid:
+            borderColor: rgba(148,163,184,0.25)
+          stroke:
+            curve: smooth
+            width: 3
+        graph_span: 168h
+        header:
+          colorize_states: true
+          show: true
+          show_states: true
+          title: "Pr\xEDkon, rekuper\xE1cia a dohrev"
+        series:
+        - color: '#f59e0b'
+          entity: sensor.jablotron_futura_prikon
+          group_by:
+            duration: 30min
+            func: avg
+          name: "Pr\xEDkon"
+          type: area
+          yaxis_id: watts
+        - color: '#0ea5e9'
+          entity: sensor.jablotron_futura_zpetne_ziskavane_teplo
+          group_by:
+            duration: 30min
+            func: avg
+          name: "Rekuper\xE1cia"
+          yaxis_id: watts
+        - color: '#ef4444'
+          entity: sensor.jablotron_futura_vykon_topeni_dohrevu
+          group_by:
+            duration: 30min
+            func: avg
+          name: Dohrev
+          yaxis_id: watts
+        type: custom:apexcharts-card
+        yaxis:
+        - decimals: 0
+          id: watts
+      column_span: 2
+      type: grid
+    title: Grafy
+    type: sections

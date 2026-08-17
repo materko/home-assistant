@@ -1,0 +1,1261 @@
+config:
+  views:
+  - icon: mdi:pool
+    max_columns: 3
+    path: bazen
+    sections:
+    - cards:
+      - custom_fields:
+          content: "[[[\n  const state = (entity) => states[entity]?.state ?? '-';\n\
+            \  const number = (entity) => Number(states[entity]?.state);\n\n  const\
+            \ phEntity = 'sensor.bazen_aseko_asin_aqua_salt_110195262_ph';\n  const\
+            \ redoxEntity = 'sensor.bazen_aseko_asin_aqua_salt_110195262_redox_potential';\n\
+            \  const tempEntity = 'sensor.bazen_aseko_asin_aqua_salt_110195262_water_temperature';\n\
+            \  const saltEntity = 'sensor.bazen_aseko_asin_aqua_salt_110195262_salinity';\n\
+            \  const levelEntity = 'sensor.bazen_aseko_asin_aqua_salt_110195262_water_level';\n\
+            \  const flowEntity = 'binary_sensor.bazen_aseko_asin_aqua_salt_110195262_water_flow_to_probes';\n\
+            \  const connEntity = 'sensor.bazen_aseko_asin_aqua_salt_110195262_connection_status';\n\
+            \  const updateEntity = 'sensor.bazen_aseko_asin_aqua_salt_110195262_last_data_update';\n\
+            \n  const ph = number(phEntity);\n  const redox = number(redoxEntity);\n\
+            \  const flow = states[flowEntity]?.state;\n  const pump = states['binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_pump_running']?.state;\n\
+            \  const conn = String(state(connEntity)).toLowerCase();\n\n  function\
+            \ parseDateCandidate(value) {\n    if (!value || value === '-' || value\
+            \ === 'unknown' || value === 'unavailable') {\n      return null;\n  \
+            \  }\n\n    let raw = String(value).trim();\n    let parsed = Date.parse(raw);\n\
+            \n    if (isNaN(parsed)) {\n      parsed = Date.parse(raw.replace(' ',\
+            \ 'T'));\n    }\n\n    if (isNaN(parsed)) {\n      return null;\n    }\n\
+            \n    return new Date(parsed);\n  }\n\n  function ageInfo(entity) {\n\
+            \    const obj = states[entity];\n\n    const candidates = [\n      obj?.state,\n\
+            \      obj?.attributes?.timestamp,\n      obj?.attributes?.last_update,\n\
+            \      obj?.attributes?.last_updated,\n      obj?.last_updated,\n    \
+            \  obj?.last_changed\n    ];\n\n    let date = null;\n\n    for (const\
+            \ candidate of candidates) {\n      date = parseDateCandidate(candidate);\n\
+            \      if (date) break;\n    }\n\n    if (!date) {\n      return {\n \
+            \       text: 'nezn\xE1me',\n        seconds: null\n      };\n    }\n\n\
+            \    const seconds = Math.max(0, Math.floor((Date.now() - date.getTime())\
+            \ / 1000));\n\n    if (seconds < 60) {\n      return {\n        text:\
+            \ `${seconds} s`,\n        seconds\n      };\n    }\n\n    const minutes\
+            \ = Math.floor(seconds / 60);\n\n    if (minutes < 60) {\n      return\
+            \ {\n        text: `${minutes} min`,\n        seconds\n      };\n    }\n\
+            \n    const hours = Math.floor(minutes / 60);\n    const restMinutes =\
+            \ minutes % 60;\n\n    if (hours < 24) {\n      return {\n        text:\
+            \ restMinutes > 0 ? `${hours} h ${restMinutes} min` : `${hours} h`,\n\
+            \        seconds\n      };\n    }\n\n    const days = Math.floor(hours\
+            \ / 24);\n    const restHours = hours % 24;\n\n    return {\n      text:\
+            \ restHours > 0 ? `${days} d ${restHours} h` : `${days} d`,\n      seconds\n\
+            \    };\n  }\n\n  const age = ageInfo(updateEntity);\n\n  let status =\
+            \ 'Voda vyzer\xE1 v poriadku';\n  let statusClass = 'ok';\n\n  if (conn.includes('off')\
+            \ || conn.includes('offline') || conn.includes('unavailable')) {\n   \
+            \ status = 'Zariadenie je offline';\n    statusClass = 'bad';\n  } else\
+            \ if (age.seconds !== null && age.seconds > 3600) {\n    status = 'D\xE1\
+            ta s\xFA star\u0161ie ako 1 h';\n    statusClass = 'bad';\n  } else if\
+            \ (pump === 'on' && flow !== 'on') {\n    status = 'Bez prietoku k sond\xE1\
+            m';\n    statusClass = 'bad';\n  } else if (!isNaN(ph) && (ph < 6.8 ||\
+            \ ph > 7.6)) {\n    status = 'Skontroluj pH vody';\n    statusClass =\
+            \ 'warn';\n  } else if (!isNaN(redox) && redox < 650) {\n    status =\
+            \ 'N\xEDzky Redox';\n    statusClass = 'warn';\n  } else if (age.seconds\
+            \ !== null && age.seconds > 900) {\n    status = 'D\xE1ta s\xFA star\u0161\
+            ie ako 15 min';\n    statusClass = 'warn';\n  }\n\n  return `\n    <div\
+            \ class=\"pool-hero ${statusClass}\">\n      <div class=\"hero-top\">\n\
+            \        <div class=\"hero-icon\">\n          <ha-icon icon=\"mdi:pool\"\
+            ></ha-icon>\n        </div>\n\n        <div class=\"hero-main\">\n   \
+            \       <div class=\"hero-title\">Baz\xE9n</div>\n          <div class=\"\
+            hero-status\">${status}</div>\n        </div>\n      </div>\n\n      <div\
+            \ class=\"freshness\">\n        <ha-icon icon=\"mdi:clock-outline\"></ha-icon>\n\
+            \        <span>D\xE1ta aktualizovan\xE9 pred</span>\n        <strong>${age.text}</strong>\n\
+            \      </div>\n\n      <div class=\"values-title\">Aktu\xE1lne hodnoty</div>\n\
+            \n      <div class=\"main-values\">\n        <div class=\"main-metric\"\
+            >\n          <div class=\"main-value\">${state(phEntity)}</div>\n    \
+            \      <div class=\"main-label\">pH vody</div>\n        </div>\n\n   \
+            \     <div class=\"main-metric\">\n          <div class=\"main-value\"\
+            >${state(redoxEntity)}</div>\n          <div class=\"main-label\">Redox\
+            \ mV</div>\n        </div>\n      </div>\n\n      <div class=\"secondary-values\"\
+            >\n        <div class=\"secondary-metric\">\n          <ha-icon icon=\"\
+            mdi:thermometer-water\"></ha-icon>\n          <div>\n            <div\
+            \ class=\"secondary-value\">${state(tempEntity)} \xB0C</div>\n       \
+            \     <div class=\"secondary-label\">Teplota</div>\n          </div>\n\
+            \        </div>\n\n        <div class=\"secondary-metric\">\n        \
+            \  <ha-icon icon=\"mdi:shaker-outline\"></ha-icon>\n          <div>\n\
+            \            <div class=\"secondary-value\">${state(saltEntity)} g/l</div>\n\
+            \            <div class=\"secondary-label\">Salinita</div>\n         \
+            \ </div>\n        </div>\n\n        <div class=\"secondary-metric\">\n\
+            \          <ha-icon icon=\"mdi:waves\"></ha-icon>\n          <div>\n \
+            \           <div class=\"secondary-value\">${state(levelEntity)} cm</div>\n\
+            \            <div class=\"secondary-label\">Hladina</div>\n          </div>\n\
+            \        </div>\n      </div>\n    </div>\n  `;\n]]]\n"
+        entity: sensor.bazen_aseko_asin_aqua_salt_110195262_ph
+        extra_styles: ".pool-hero {\n  min-height: 380px;\n  padding: 24px;\n  box-sizing:\
+          \ border-box;\n  color: white;\n  display: flex;\n  flex-direction: column;\n\
+          \  gap: 16px;\n  background: linear-gradient(135deg, #005f86, #0096c7, #00b4d8);\n\
+          }\n\n.pool-hero.ok {\n  background: linear-gradient(135deg, #005f73, #0a9396,\
+          \ #94d2bd);\n}\n\n.pool-hero.warn {\n  background: linear-gradient(135deg,\
+          \ #7a3e00, #c77700, #f59e0b);\n}\n\n.pool-hero.bad {\n  background: linear-gradient(135deg,\
+          \ #3b0d0d, #8b1e1e, #dc2626);\n}\n\n.hero-top {\n  display: flex;\n  align-items:\
+          \ center;\n  gap: 16px;\n}\n\n.hero-icon {\n  width: 62px;\n  height: 62px;\n\
+          \  border-radius: 20px;\n  display: flex;\n  align-items: center;\n  justify-content:\
+          \ center;\n  background: rgba(255,255,255,0.18);\n  flex-shrink: 0;\n}\n\
+          \n.hero-icon ha-icon {\n  --mdc-icon-size: 40px;\n}\n\n.hero-main {\n  min-width:\
+          \ 0;\n}\n\n.hero-title {\n  font-size: 34px;\n  line-height: 1;\n  font-weight:\
+          \ 900;\n}\n\n.hero-status {\n  margin-top: 7px;\n  font-size: 16px;\n  font-weight:\
+          \ 800;\n  opacity: 0.95;\n}\n\n.freshness {\n  display: flex;\n  align-items:\
+          \ center;\n  gap: 8px;\n  width: fit-content;\n  max-width: 100%;\n  padding:\
+          \ 9px 13px;\n  border-radius: 999px;\n  background: rgba(255,255,255,0.20);\n\
+          \  backdrop-filter: blur(8px);\n  font-size: 13px;\n  font-weight: 700;\n\
+          }\n\n.freshness ha-icon {\n  --mdc-icon-size: 18px;\n}\n\n.freshness strong\
+          \ {\n  font-size: 15px;\n  font-weight: 900;\n}\n\n.values-title {\n  font-size:\
+          \ 13px;\n  font-weight: 900;\n  text-transform: uppercase;\n  letter-spacing:\
+          \ 0.08em;\n  opacity: 0.9;\n  margin-top: 2px;\n}\n\n.main-values {\n  display:\
+          \ grid;\n  grid-template-columns: repeat(2, minmax(0, 1fr));\n  gap: 14px;\n\
+          }\n\n.main-metric {\n  border-radius: 24px;\n  padding: 20px 16px;\n  background:\
+          \ rgba(255,255,255,0.22);\n  backdrop-filter: blur(8px);\n  min-width: 0;\n\
+          }\n\n.main-value {\n  font-size: 42px;\n  line-height: 1;\n  font-weight:\
+          \ 950;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n\
+          }\n\n.main-label {\n  margin-top: 10px;\n  font-size: 13px;\n  font-weight:\
+          \ 850;\n  text-transform: uppercase;\n  letter-spacing: 0.06em;\n  opacity:\
+          \ 0.92;\n}\n\n.secondary-values {\n  display: grid;\n  grid-template-columns:\
+          \ repeat(3, minmax(0, 1fr));\n  gap: 12px;\n}\n\n.secondary-metric {\n \
+          \ display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content:\
+          \ center;\n  text-align: center;\n  gap: 6px;\n  border-radius: 18px;\n\
+          \  padding: 12px 6px;\n  background: rgba(255,255,255,0.17);\n  min-width:\
+          \ 0;\n  overflow: hidden;\n}\n\n.secondary-metric > div {\n  min-width:\
+          \ 0;\n  width: 100%;\n}\n\n.secondary-metric ha-icon {\n  --mdc-icon-size:\
+          \ 24px;\n  flex-shrink: 0;\n}\n\n.secondary-value {\n  font-size: 16px;\n\
+          \  line-height: 1.15;\n  font-weight: 900;\n  white-space: normal;\n  word-break:\
+          \ break-word;\n}\n\n.secondary-label {\n  margin-top: 2px;\n  font-size:\
+          \ 10px;\n  font-weight: 800;\n  text-transform: uppercase;\n  letter-spacing:\
+          \ 0.04em;\n  opacity: 0.88;\n  white-space: normal;\n}\n"
+        show_icon: false
+        show_name: false
+        show_state: false
+        styles:
+          card:
+          - border-radius: 30px
+          - padding: 0
+          - overflow: hidden
+          - min-height: 380px
+          - box-shadow: 0 12px 32px rgba(0,0,0,0.20)
+          custom_fields:
+            content:
+            - width: 100%
+            - height: 100%
+          grid:
+          - grid-template-areas: '"content"'
+          - grid-template-columns: 1fr
+          - grid-template-rows: 1fr
+        tap_action:
+          action: more-info
+        type: custom:button-card
+      - card:
+          columns: 1
+          square: false
+          type: grid
+        card_param: cards
+        filter:
+          include:
+          - entity_id: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_rapid_change_of_ph
+            options:
+              color: red
+              icon: mdi:flask-empty-remove
+              name: "Prudk\xE1 zmena pH"
+              type: tile
+            state: 'on'
+          - entity_id: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_too_many_doses_of_ph
+            options:
+              color: orange
+              icon: mdi:flask-round-bottom
+              name: "Prive\u013Ea d\xE1vok pH"
+              type: tile
+            state: 'on'
+          - entity_id: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_too_many_doses_of_disinfection
+            options:
+              color: orange
+              icon: mdi:bacteria
+              name: "Prive\u013Ea d\xE1vok dezinfekcie"
+              type: tile
+            state: 'on'
+          - entity_id: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_backwash_active
+            options:
+              color: blue
+              icon: mdi:backup-restore
+              name: Prebieha preplach filtra
+              type: tile
+            state: 'on'
+          - entity_id: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_water_filling_active
+            options:
+              color: blue
+              icon: mdi:water-plus
+              name: "Dop\xFA\u0161\u0165a sa voda"
+              type: tile
+            state: 'on'
+          - entity_id: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_heating_active
+            options:
+              color: amber
+              icon: mdi:fire
+              name: "Ohrev be\u017E\xED"
+              type: tile
+            state: 'on'
+        show_empty: false
+        type: custom:auto-entities
+      - card:
+          color: red
+          entity: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_no_flow_to_probes
+          icon: mdi:water-off
+          name: "Bez prietoku k sond\xE1m"
+          type: tile
+        conditions:
+        - condition: state
+          entity: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_pump_running
+          state: 'on'
+        - condition: state
+          entity: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_no_flow_to_probes
+          state: 'on'
+        type: conditional
+      type: grid
+    - cards:
+      - heading: Wellness
+        heading_style: title
+        icon: mdi:hot-tub
+        type: heading
+      - color: purple
+        entity: input_boolean.bazen_led_svetlo
+        grid_options:
+          columns: 6
+        hold_action:
+          action: more-info
+        icon: mdi:led-strip-variant
+        name: LED svetlo
+        state_content:
+        - state
+        - last_changed
+        tap_action:
+          action: perform-action
+          perform_action: script.bazen_svetlo_toggle
+        type: tile
+      - color: cyan
+        entity: input_boolean.bazen_wellness_trysky
+        grid_options:
+          columns: 6
+        hold_action:
+          action: more-info
+        icon: mdi:waves
+        name: Trysky
+        state_content:
+        - state
+        - last_changed
+        tap_action:
+          action: perform-action
+          perform_action: script.bazen_trysky_toggle
+        type: tile
+      - cards:
+        - icon: mdi:palette
+          icon_color: purple
+          multiline_secondary: true
+          primary: Zmena farby LED
+          secondary: "\u010Eal\u0161\xED sveteln\xFD program"
+          tap_action:
+            action: perform-action
+            perform_action: script.bazen_svetlo_dalsi_program
+          type: custom:mushroom-template-card
+        - icon: mdi:power-off
+          icon_color: grey
+          multiline_secondary: true
+          primary: "V\u0161etko vypn\xFA\u0165"
+          secondary: "Svetl\xE1 aj trysky"
+          tap_action:
+            action: perform-action
+            perform_action: script.bazen_vsetko_off
+          type: custom:mushroom-template-card
+        columns: 2
+        square: false
+        type: grid
+      - heading: Voda
+        heading_style: title
+        icon: mdi:water-check
+        type: heading
+      - cards:
+        - entity: sensor.bazen_aseko_asin_aqua_salt_110195262_ph
+          max: 8.5
+          min: 6
+          name: pH
+          needle: true
+          segments:
+          - color: '#d32f2f'
+            from: 6
+          - color: '#f9a825'
+            from: 6.8
+          - color: '#2e7d32'
+            from: 7
+          - color: '#f9a825'
+            from: 7.4
+          - color: '#d32f2f'
+            from: 7.6
+          type: gauge
+        - entity: sensor.bazen_aseko_asin_aqua_salt_110195262_redox_potential
+          max: 900
+          min: 300
+          name: Redox
+          needle: true
+          segments:
+          - color: '#d32f2f'
+            from: 300
+          - color: '#f9a825'
+            from: 500
+          - color: '#2e7d32'
+            from: 650
+          - color: '#f9a825'
+            from: 850
+          type: gauge
+        - entity: sensor.bazen_aseko_asin_aqua_salt_110195262_salinity
+          max: 6
+          min: 0
+          name: "So\u013E"
+          needle: true
+          segments:
+          - color: '#d32f2f'
+            from: 0
+          - color: '#f9a825'
+            from: 2.5
+          - color: '#2e7d32'
+            from: 3
+          - color: '#f9a825'
+            from: 4.5
+          - color: '#d32f2f'
+            from: 5.5
+          type: gauge
+        columns: 3
+        square: false
+        type: grid
+      - heading: Teplota
+        heading_style: subtitle
+        icon: mdi:thermometer
+        type: heading
+      - color: blue
+        entity: sensor.0xa4c1380615dcffff_temperature
+        grid_options:
+          columns: 6
+        icon: mdi:pool
+        name: "Dno baz\xE9na"
+        state_content:
+        - state
+        - last_changed
+        type: tile
+      - color: orange
+        entity: sensor.bazen_aseko_asin_aqua_salt_110195262_water_temperature
+        grid_options:
+          columns: 6
+        icon: mdi:pipe
+        name: "Pr\xEDvod z filtra"
+        state_content:
+        - state
+        - last_changed
+        type: tile
+      type: grid
+    - cards:
+      - heading: "Dop\xFA\u0161\u0165anie vody"
+        heading_style: title
+        icon: mdi:water-plus
+        type: heading
+      - custom_fields:
+          content: "[[[\n  const lvl  = Number(states['sensor.bazen_aseko_asin_aqua_salt_110195262_water_level']?.state);\n\
+            \  const hi   = Number(states['sensor.bazen_aseko_asin_aqua_salt_110195262_water_level_high_alarm']?.state);\n\
+            \  const offT = Number(states['sensor.bazen_aseko_asin_aqua_salt_110195262_filling_off_threshold']?.state);\n\
+            \  const onT  = Number(states['sensor.bazen_aseko_asin_aqua_salt_110195262_filling_on_threshold']?.state);\n\
+            \  const lo   = Number(states['sensor.bazen_aseko_asin_aqua_salt_110195262_water_level_low_alarm']?.state);\n\
+            \  const mft  = states['sensor.bazen_aseko_asin_aqua_salt_110195262_max_filling_time']?.state\
+            \ ?? '\u2013';\n  const filling = states['binary_sensor.bazen_aseko_asin_aqua_salt_110195262_water_filling_active']?.state\
+            \ === 'on';\n\n  const top = hi + 6;\n  const pct = (v) => Math.max(0,\
+            \ Math.min(100, (v / top) * 100));\n\n  let status = 'Hladina OK';\n \
+            \ let cls = 'ok';\n  if (lvl >= hi)      { status = 'Vysok\xE1 hladina\
+            \ \u2013 ALARM'; cls = 'bad'; }\n  else if (lvl <= lo) { status = 'N\xED\
+            zka hladina \u2013 ALARM';  cls = 'bad'; }\n  else if (filling)   { status\
+            \ = 'Dop\xFA\u0161\u0165a sa voda';         cls = 'fill'; }\n  else if\
+            \ (lvl < onT) { status = 'Dop\xFA\u0161\u0165a sa voda';         cls =\
+            \ 'fill'; }\n\n  const marks = [\n    { v: hi,   label: 'Vysok\xE1 hladina\
+            \ \u2013 alarm', cls: 'm-bad' },\n    { v: offT, label: 'Dop\xFA\u0161\
+            \u0165anie sa vypne',         cls: 'm-ok' },\n    { v: onT,  label: 'Dop\xFA\
+            \u0161\u0165anie sa zapne',         cls: 'm-fill' },\n    { v: lo,   label:\
+            \ 'N\xEDzka hladina \u2013 alarm',  cls: 'm-bad' }\n  ];\n\n  const markHtml\
+            \ = marks.map(m => `\n    <div class=\"mark ${m.cls}\" style=\"bottom:${pct(m.v)}%\"\
+            >\n      <span class=\"mv\">${m.v} cm</span>\n      <span class=\"ml\"\
+            >${m.label}</span>\n    </div>`).join('');\n\n  return `\n    <div class=\"\
+            wl\">\n      <div class=\"wl-title\">Hladina vody</div>\n      <div class=\"\
+            wl-status ${cls}\">${status}</div>\n      <div class=\"wl-body\">\n  \
+            \      <div class=\"tube\">\n          <div class=\"fillbar ${cls}\" style=\"\
+            height:${pct(lvl)}%\"></div>\n          <div class=\"cur\" style=\"bottom:${pct(lvl)}%\"\
+            ></div>\n          ${markHtml}\n        </div>\n        <div class=\"\
+            big\">\n          <span class=\"bigval\">${Number.isFinite(lvl) ? lvl\
+            \ : '\u2013'}</span><span class=\"bigunit\">cm</span>\n        </div>\n\
+            \      </div>\n      <div class=\"wl-foot\">\n        <span class=\"fl\"\
+            >Max. \u010Das dop\xFA\u0161\u0165ania</span>\n        <span class=\"\
+            fv\">${mft} min</span>\n      </div>\n    </div>\n  `;\n]]]\n"
+        entity: sensor.bazen_aseko_asin_aqua_salt_110195262_water_level
+        extra_styles: ".wl { padding: 18px 16px 16px; box-sizing: border-box; }\n\
+          .wl-title { font-size: 19px; font-weight: 800; }\n.wl-status { font-size:\
+          \ 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;\
+          \ margin-top: 3px; }\n.wl-status.ok { color: #16a34a; }\n.wl-status.fill\
+          \ { color: #0284c7; }\n.wl-status.bad { color: #dc2626; }\n.wl-body { display:\
+          \ flex; align-items: stretch; gap: 14px; margin-top: 16px; }\n.tube { position:\
+          \ relative; width: 26px; min-height: 200px; border-radius: 13px; background:\
+          \ rgba(148,163,184,0.20); flex: 0 0 26px; }\n.fillbar { position: absolute;\
+          \ left: 0; right: 0; bottom: 0; border-radius: 13px; transition: height\
+          \ 0.4s ease; }\n.fillbar.ok { background: linear-gradient(180deg, #38bdf8,\
+          \ #0284c7); }\n.fillbar.fill { background: linear-gradient(180deg, #60a5fa,\
+          \ #1d4ed8); }\n.fillbar.bad { background: linear-gradient(180deg, #f87171,\
+          \ #dc2626); }\n.cur { position: absolute; left: -5px; right: -5px; height:\
+          \ 3px; border-radius: 2px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.3);\
+          \ }\n.mark { position: absolute; left: 38px; transform: translateY(50%);\
+          \ white-space: nowrap; line-height: 1.1; }\n.mark::before { content: '';\
+          \ position: absolute; left: -38px; width: 34px; top: 50%; border-top: 1px\
+          \ dashed rgba(128,128,128,0.55); }\n.mv { font-size: 13px; font-weight:\
+          \ 800; margin-right: 7px; }\n.ml { font-size: 11px; opacity: 0.72; }\n.m-bad\
+          \ .mv { color: #dc2626; }\n.m-ok .mv { color: #16a34a; }\n.m-fill .mv {\
+          \ color: #0284c7; }\n.big { margin-left: auto; display: flex; align-items:\
+          \ flex-start; }\n.bigval { font-size: 52px; font-weight: 900; line-height:\
+          \ 0.95; }\n.bigunit { font-size: 17px; font-weight: 700; opacity: 0.65;\
+          \ margin-left: 4px; margin-top: 6px; }\n.wl-foot {\n  display: flex;\n \
+          \ align-items: center;\n  justify-content: space-between;\n  margin-top:\
+          \ 16px;\n  padding-top: 12px;\n  border-top: 1px solid rgba(128,128,128,0.28);\n\
+          }\n.fl { font-size: 13px; font-weight: 700; opacity: 0.78; }\n.fv { font-size:\
+          \ 17px; font-weight: 900; }\n"
+        show_icon: false
+        show_name: false
+        show_state: false
+        styles:
+          card:
+          - border-radius: 26px
+          - padding: '0'
+          - box-shadow: 0 8px 24px rgba(0,0,0,0.14)
+          custom_fields:
+            content:
+            - width: 100%
+          grid:
+          - grid-template-areas: '"content"'
+          - grid-template-columns: 1fr
+        tap_action:
+          action: more-info
+        type: custom:button-card
+      type: grid
+    - cards:
+      - subtitle: "filtr\xE1cia, elektrolyz\xE9r a d\xE1vkovanie"
+        title: "Technol\xF3gia"
+        type: custom:mushroom-title-card
+      - card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  overflow: hidden;\n  box-shadow:\
+            \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+        cards:
+        - entity: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_pump_running
+          icon: mdi:pump
+          icon_color: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_pump_running',\
+            \ 'on') %}\n  cyan\n{% else %}\n  grey\n{% endif %}\n"
+          primary: "Filtr\xE1cia"
+          secondary: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_pump_running',\
+            \ 'on') %}\n  Be\u017E\xED\n{% else %}\n  Vypnut\xE1\n{% endif %}\n"
+          type: custom:mushroom-template-card
+        - entity: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_water_flow_to_probes
+          icon: mdi:waves-arrow-right
+          icon_color: '{% if is_state(''binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_pump_running'',
+            ''off'') %}disabled{% elif is_state(''binary_sensor.bazen_aseko_asin_aqua_salt_110195262_water_flow_to_probes'',
+            ''on'') %}blue{% else %}red{% endif %}'
+          multiline_secondary: true
+          primary: "Prietok k sond\xE1m"
+          secondary: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_pump_running',\
+            \ 'off') %}Filtr\xE1cia stoj\xED \u2014 prietok sa nemeria{% elif is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_water_flow_to_probes',\
+            \ 'on') %}Sondy maj\xFA prietok{% else %}Pozor \u2014 bez prietoku{% endif\
+            \ %}"
+          type: custom:mushroom-template-card
+        - entity: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_electrolyzer_active
+          icon: mdi:flash
+          icon_color: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_electrolyzer_active',\
+            \ 'on') %}\n  amber\n{% else %}\n  grey\n{% endif %}\n"
+          primary: "Elektrolyz\xE9r"
+          secondary: "V\xFDkon: {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_electrolyzer_power')\
+            \ }} \xB7 Smer: {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_electrolyzer_direction')\
+            \ }}\n"
+          type: custom:mushroom-template-card
+        mode: vertical
+        type: custom:stack-in-card
+      - card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  overflow: hidden;\n  box-shadow:\
+            \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+        cards:
+        - entity: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_ph_pump_running
+          icon: mdi:flask
+          icon_color: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_ph_pump_running',\
+            \ 'on') %}\n  green\n{% else %}\n  grey\n{% endif %}\n"
+          primary: "pH d\xE1vkovanie"
+          secondary: "Od doplnenia: {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_ph_consumed_since_refill')\
+            \ }} \xB7 Celkovo: {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_ph_consumed_total')\
+            \ }}\n"
+          type: custom:mushroom-template-card
+        - entity: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_algicide_pump_running
+          icon: mdi:bacteria
+          icon_color: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_algicide_pump_running',\
+            \ 'on') %}\n  teal\n{% else %}\n  grey\n{% endif %}\n"
+          primary: "Algic\xEDd"
+          secondary: "Od doplnenia: {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_algicide_consumed_since_refill')\
+            \ }} \xB7 Celkovo: {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_algicide_consumed_total')\
+            \ }}\n"
+          type: custom:mushroom-template-card
+        - icon: mdi:speedometer
+          icon_color: blue
+          primary: "Prietoky d\xE1vkovania"
+          secondary: "pH: {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_flow_rate_ph')\
+            \ }} \xB7 Algic\xEDd: {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_flow_rate_algicide')\
+            \ }}\n"
+          type: custom:mushroom-template-card
+        mode: vertical
+        type: custom:stack-in-card
+      - entity: input_datetime.bazen_posledne_dopustanie_vody
+        icon: mdi:water-plus
+        icon_color: '{% if is_state(''binary_sensor.bazen_aseko_asin_aqua_salt_110195262_water_filling_active'',
+          ''on'') %}blue{% else %}grey{% endif %}'
+        multiline_secondary: true
+        primary: "Naposledy sa dop\xFA\u0161\u0165ala voda"
+        secondary: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_water_filling_active',\
+          \ 'on') %}Pr\xE1ve teraz{% else %}{% set s = states('input_datetime.bazen_posledne_dopustanie_vody')\
+          \ %}{% if s not in ['unknown','unavailable','none',''] and not s.startswith('1970')\
+          \ %}{{ as_timestamp(s) | timestamp_custom('%-d. %-m. %Y o %H:%M') }} \xB7\
+          \ pred {{ relative_time(as_datetime(s)) }}{% set d = states('input_number.bazen_trvanie_posledneho_dopustania')\
+          \ | float(0) %}{% if d > 0 %} \xB7 trvalo {{ d | round(0) | int }} min{%\
+          \ endif %}{% else %}zatia\u013E nezaznamenan\xE9{% endif %}{% endif %}"
+        tap_action:
+          action: more-info
+        type: custom:mushroom-template-card
+      type: grid
+    - cards:
+      - subtitle: "cie\u013Eov\xE9 hodnoty a filtr\xE1cia"
+        title: Nastavenia
+        type: custom:mushroom-title-card
+      - card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  overflow: hidden;\n  box-shadow:\
+            \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+        cards:
+        - entity: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_nonstop_24h
+          icon: mdi:clock-check
+          icon_color: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_nonstop_24h',\
+            \ 'on') %}\n  green\n{% elif is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_nonstop_24h',\
+            \ 'off') %}\n  grey\n{% else %}\n  disabled\n{% endif %}\n"
+          primary: "Filtr\xE1cia nonstop 24 h"
+          secondary: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_nonstop_24h',\
+            \ 'on') %}\n  Zapnut\xE1 \u2014 \u010Dasova\u010De sa ignoruj\xFA\n{%\
+            \ elif is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_nonstop_24h',\
+            \ 'off') %}\n  Vypnut\xE1 \u2014 platia \u010Dasova\u010De\n{% else %}\n\
+            \  Nezn\xE1me\n{% endif %}\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_nonstop_24h',\
+              \ 'on') %}\nha-card {\n  opacity: 0.45;\n  filter: grayscale(1);\n}\n\
+              {% endif %}\n"
+          icon: mdi:clock-outline
+          icon_color: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_nonstop_24h',\
+            \ 'on') %}\n  disabled\n{% else %}\n  cyan\n{% endif %}\n"
+          primary: "Filtr\xE1cia 1"
+          secondary: "{{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_1_start')\
+            \ }} \u2013 {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_1_stop')\
+            \ }}{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_nonstop_24h',\
+            \ 'on') %} \xB7 neakt\xEDvne{% endif %}\n"
+          type: custom:mushroom-template-card
+        - card:
+            card_mod:
+              style: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_nonstop_24h',\
+                \ 'on') %}\nha-card {\n  opacity: 0.45;\n  filter: grayscale(1);\n\
+                }\n{% endif %}\n"
+            icon: mdi:clock-outline
+            icon_color: "{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_nonstop_24h',\
+              \ 'on') %}\n  disabled\n{% else %}\n  cyan\n{% endif %}\n"
+            primary: "Filtr\xE1cia 2"
+            secondary: "{{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_2_start')\
+              \ }} \u2013 {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_2_stop')\
+              \ }}{% if is_state('binary_sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_nonstop_24h',\
+              \ 'on') %} \xB7 neakt\xEDvne{% endif %}\n"
+            type: custom:mushroom-template-card
+          conditions:
+          - condition: state
+            entity: sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_2_start
+            state_not: unavailable
+          - condition: state
+            entity: sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_2_start
+            state_not: unknown
+          - condition: state
+            entity: sensor.bazen_aseko_asin_aqua_salt_110195262_filtration_2_start
+            state_not: none
+          type: conditional
+        - icon: mdi:timer-sand
+          icon_color: amber
+          primary: "Oneskorenie po \u0161tarte"
+          secondary: '{% set v = states(''sensor.bazen_aseko_asin_aqua_salt_110195262_delay_after_startup'')
+            | float(0) %}{{ v | int if v == v | int else v | round(1) }} {{ state_attr(''sensor.bazen_aseko_asin_aqua_salt_110195262_delay_after_startup'',
+            ''unit_of_measurement'') }}'
+          type: custom:mushroom-template-card
+        - icon: mdi:timer-sand-complete
+          icon_color: amber
+          primary: "Oneskorenie po d\xE1vke"
+          secondary: '{% set v = states(''sensor.bazen_aseko_asin_aqua_salt_110195262_delay_after_dose'')
+            | float(0) %}{{ v | int if v == v | int else v | round(1) }} {{ state_attr(''sensor.bazen_aseko_asin_aqua_salt_110195262_delay_after_dose'',
+            ''unit_of_measurement'') }}'
+          type: custom:mushroom-template-card
+        - icon: mdi:update
+          icon_color: blue
+          primary: "Posledn\xE1 aktualiz\xE1cia d\xE1t"
+          secondary: "{% set last = states('sensor.bazen_aseko_asin_aqua_salt_110195262_last_data_update')\
+            \ %} {% if last not in ['unknown', 'unavailable', 'none', 'None', '']\
+            \ %}\n  {{ relative_time(as_datetime(last)) }} dozadu\n{% else %}\n  nezn\xE1\
+            me\n{% endif %}\n"
+          type: custom:mushroom-template-card
+        mode: vertical
+        type: custom:stack-in-card
+      - card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  overflow: hidden;\n  box-shadow:\
+            \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+        cards:
+        - icon: mdi:target
+          icon_color: green
+          primary: "Cie\u013E pH"
+          secondary: '{{ states(''sensor.bazen_aseko_asin_aqua_salt_110195262_required_ph_value'')
+            }}'
+          type: custom:mushroom-template-card
+        - icon: mdi:shield-check
+          icon_color: blue
+          primary: "Cie\u013E Redox"
+          secondary: '{{ states(''sensor.bazen_aseko_asin_aqua_salt_110195262_required_redox_potential'')
+            }}'
+          type: custom:mushroom-template-card
+        - icon: mdi:thermometer
+          icon_color: orange
+          primary: "Cie\u013Eov\xE1 teplota"
+          secondary: '{{ states(''sensor.bazen_aseko_asin_aqua_salt_110195262_required_water_temperature'')
+            }}'
+          type: custom:mushroom-template-card
+        - icon: mdi:pool
+          icon_color: cyan
+          primary: "Objem baz\xE9na"
+          secondary: '{{ states(''sensor.bazen_aseko_asin_aqua_salt_110195262_pool_volume'')
+            }}'
+          type: custom:mushroom-template-card
+        mode: vertical
+        type: custom:stack-in-card
+      type: grid
+    - cards:
+      - heading: "Ch\xE9mia a doplnenie"
+        heading_style: title
+        icon: mdi:flask-outline
+        type: heading
+      - cards:
+        - entity: sensor.bazen_ph_minus_zostava
+          icon: mdi:flask
+          icon_color: green
+          multiline_secondary: true
+          primary: "pH\u2212 v kanistri"
+          secondary: "{{ states('sensor.bazen_ph_minus_zostava') }} L z {{ states('input_number.bazen_ph_minus_objem_kanistra')\
+            \ | float(0) | round(1) }} L \xB7 minut\xE9 {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_ph_consumed_since_refill')\
+            \ }} L"
+          type: custom:mushroom-template-card
+        - entity: script.bazen_doplnil_som_ph_minus
+          icon: mdi:beaker-plus
+          icon_color: green
+          multiline_secondary: true
+          primary: "Doplni\u0165 pH\u2212"
+          secondary: Zadaj obsah kanistra a vynuluje sa spotreba
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        mode: vertical
+        type: custom:stack-in-card
+      - cards:
+        - entity: sensor.bazen_algicid_zostava
+          icon: mdi:bacteria
+          icon_color: teal
+          multiline_secondary: true
+          primary: "Algic\xEDd v kanistri"
+          secondary: "{{ states('sensor.bazen_algicid_zostava') }} L z {{ states('input_number.bazen_algicid_objem_kanistra')\
+            \ | float(0) | round(1) }} L \xB7 minut\xE9 {{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_algicide_consumed_since_refill')\
+            \ }} L"
+          type: custom:mushroom-template-card
+        - entity: script.bazen_doplnil_som_algicid
+          icon: mdi:beaker-plus
+          icon_color: teal
+          multiline_secondary: true
+          primary: "Doplni\u0165 algic\xEDd"
+          secondary: Zadaj obsah kanistra a vynuluje sa spotreba
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        mode: vertical
+        type: custom:stack-in-card
+      - heading: Preplach filtra
+        heading_style: subtitle
+        icon: mdi:backup-restore
+        type: heading
+      - custom_fields:
+          content: "[[[\n  const s = states['sensor.bazen_aseko_asin_aqua_salt_110195262_next_backwash']?.state;\n\
+            \  let rel = 'nezn\xE1my', dat = '';\n  if (s && !['unknown','unavailable','none',''].includes(s))\
+            \ {\n    const t = new Date(s);\n    const d = Math.round((t.getTime()\
+            \ - Date.now()) / 86400000);\n    if (d <= 0) rel = 'dnes';\n    else\
+            \ if (d === 1) rel = 'o 1 de\u0148';\n    else if (d < 5) rel = `o ${d}\
+            \ dni`;\n    else rel = `o ${d} dn\xED`;\n    dat = `${t.getDate()}. ${t.getMonth()+1}.\
+            \ ${t.getFullYear()}`;\n  }\n  return `<div class=\"bw\">\n      <div\
+            \ class=\"bw-ic\"><ha-icon icon=\"mdi:calendar-clock\"></ha-icon></div>\n\
+            \      <div class=\"bw-tx\">\n        <div class=\"bw-t\">\u010Eal\u0161\
+            \xED pl\xE1novan\xFD preplach</div>\n        <div class=\"bw-r\">${rel}</div>\n\
+            \        <div class=\"bw-d\">${dat}</div>\n      </div>\n    </div>`;\n\
+            ]]]\n"
+        entity: sensor.bazen_aseko_asin_aqua_salt_110195262_next_backwash
+        extra_styles: ".bw { display: flex; align-items: center; gap: 12px; padding:\
+          \ 12px 14px; box-sizing: border-box; }\n.bw-ic { width: 38px; height: 38px;\
+          \ flex: 0 0 38px; display: flex; align-items: center; justify-content: center;\n\
+          \         border-radius: 50%; background: rgba(2,132,199,0.15); color: #0284c7;\
+          \ --mdc-icon-size: 22px; }\n.bw-tx { min-width: 0; text-align: left; }\n\
+          .bw-t { font-size: 14px; font-weight: 700; line-height: 1.25; white-space:\
+          \ normal; }\n.bw-r { font-size: 13px; font-weight: 600; line-height: 1.3;\
+          \ color: var(--primary-text-color);\n        white-space: normal; overflow-wrap:\
+          \ anywhere; }\n.bw-d { font-size: 12px; font-weight: 400; line-height: 1.3;\
+          \ color: var(--secondary-text-color); opacity: 0.75; }\n.bw-src { display:\
+          \ inline-block; margin-top: 4px; font-size: 10px; font-weight: 800; text-transform:\
+          \ uppercase;\n          letter-spacing: 0.04em; padding: 2px 8px; border-radius:\
+          \ 999px; }\n.bw-src.obs { background: rgba(22,163,74,0.15); color: #16a34a;\
+          \ }\n.bw-src.man { background: rgba(217,119,6,0.16); color: #d97706; }\n"
+        grid_options:
+          columns: full
+        show_icon: false
+        show_name: false
+        show_state: false
+        styles:
+          card:
+          - border-radius: 18px
+          - padding: '0'
+          - box-shadow: none
+          custom_fields:
+            content:
+            - width: 100%
+          grid:
+          - grid-template-areas: '"content"'
+          - grid-template-columns: 1fr
+        tap_action:
+          action: more-info
+        type: custom:button-card
+      - cards:
+        - custom_fields:
+            content: "[[[\n  const o = states['datetime.bazen_aseko_asin_aqua_salt_110195262_last_scheduled_backwash'];\n\
+              \  const s = o?.state;\n  let dat = 'nezn\xE1my';\n  if (s && !['unknown','unavailable','none',''].includes(s))\
+              \ {\n    const t = new Date(s);\n    dat = `${t.getDate()}. ${t.getMonth()+1}.\
+              \ ${t.getFullYear()} o ${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}`;\n\
+              \  }\n\n  let extra = '';\n  const so = o?.attributes?.source;\n  if\
+              \ (so === 'manual') extra = `<span class=\"bw-src man\">zadan\xE9 ru\u010D\
+              ne</span>`;\n  else if (so === 'observed') extra = `<span class=\"bw-src\
+              \ obs\">detekovan\xE9</span>`;\n  else extra = `<div class=\"bw-d\"\
+              >klikni a zadaj</div>`;\n  return `<div class=\"bw\">\n      <div class=\"\
+              bw-ic\"><ha-icon icon=\"mdi:calendar-check\"></ha-icon></div>\n    \
+              \  <div class=\"bw-tx\">\n        <div class=\"bw-t\">Posledn\xFD pl\xE1\
+              novan\xFD preplach</div>\n        <div class=\"bw-r\">${dat}</div>\n\
+              \        ${extra}\n      </div>\n    </div>`;\n]]]\n"
+          entity: datetime.bazen_aseko_asin_aqua_salt_110195262_last_scheduled_backwash
+          extra_styles: ".bw { display: flex; align-items: center; gap: 12px; padding:\
+            \ 12px 14px; box-sizing: border-box; }\n.bw-ic { width: 38px; height:\
+            \ 38px; flex: 0 0 38px; display: flex; align-items: center; justify-content:\
+            \ center;\n         border-radius: 50%; background: rgba(2,132,199,0.15);\
+            \ color: #0284c7; --mdc-icon-size: 22px; }\n.bw-tx { min-width: 0; text-align:\
+            \ left; }\n.bw-t { font-size: 14px; font-weight: 700; line-height: 1.25;\
+            \ white-space: normal; }\n.bw-r { font-size: 13px; font-weight: 600; line-height:\
+            \ 1.3; color: var(--primary-text-color);\n        white-space: normal;\
+            \ overflow-wrap: anywhere; }\n.bw-d { font-size: 12px; font-weight: 400;\
+            \ line-height: 1.3; color: var(--secondary-text-color); opacity: 0.75;\
+            \ }\n.bw-src { display: inline-block; margin-top: 4px; font-size: 10px;\
+            \ font-weight: 800; text-transform: uppercase;\n          letter-spacing:\
+            \ 0.04em; padding: 2px 8px; border-radius: 999px; }\n.bw-src.obs { background:\
+            \ rgba(22,163,74,0.15); color: #16a34a; }\n.bw-src.man { background: rgba(217,119,6,0.16);\
+            \ color: #d97706; }\n"
+          grid_options:
+            columns: 6
+          show_icon: false
+          show_name: false
+          show_state: false
+          styles:
+            card:
+            - border-radius: 18px
+            - padding: '0'
+            - box-shadow: none
+            custom_fields:
+              content:
+              - width: 100%
+            grid:
+            - grid-template-areas: '"content"'
+            - grid-template-columns: 1fr
+          tap_action:
+            action: more-info
+          type: custom:button-card
+        - custom_fields:
+            content: "[[[\n  const o = states['sensor.bazen_aseko_asin_aqua_salt_110195262_last_manual_backwash_estimated'];\n\
+              \  const s = o?.state;\n  let dat = 'nezn\xE1my';\n  if (s && !['unknown','unavailable','none',''].includes(s))\
+              \ {\n    const t = new Date(s);\n    dat = `${t.getDate()}. ${t.getMonth()+1}.\
+              \ ${t.getFullYear()} o ${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}`;\n\
+              \  }\n\n  return `<div class=\"bw\">\n      <div class=\"bw-ic\"><ha-icon\
+              \ icon=\"mdi:hand-back-right-outline\"></ha-icon></div>\n      <div\
+              \ class=\"bw-tx\">\n        <div class=\"bw-t\">Posledn\xFD ru\u010D\
+              n\xFD preplach</div>\n        <div class=\"bw-r\">${dat}</div>\n   \
+              \   </div>\n    </div>`;\n]]]\n"
+          entity: sensor.bazen_aseko_asin_aqua_salt_110195262_last_manual_backwash_estimated
+          extra_styles: ".bw { display: flex; align-items: center; gap: 12px; padding:\
+            \ 12px 14px; box-sizing: border-box; }\n.bw-ic { width: 38px; height:\
+            \ 38px; flex: 0 0 38px; display: flex; align-items: center; justify-content:\
+            \ center;\n         border-radius: 50%; background: rgba(2,132,199,0.15);\
+            \ color: #0284c7; --mdc-icon-size: 22px; }\n.bw-tx { min-width: 0; text-align:\
+            \ left; }\n.bw-t { font-size: 14px; font-weight: 700; line-height: 1.25;\
+            \ white-space: normal; }\n.bw-r { font-size: 13px; font-weight: 600; line-height:\
+            \ 1.3; color: var(--primary-text-color);\n        white-space: normal;\
+            \ overflow-wrap: anywhere; }\n.bw-d { font-size: 12px; font-weight: 400;\
+            \ line-height: 1.3; color: var(--secondary-text-color); opacity: 0.75;\
+            \ }\n.bw-src { display: inline-block; margin-top: 4px; font-size: 10px;\
+            \ font-weight: 800; text-transform: uppercase;\n          letter-spacing:\
+            \ 0.04em; padding: 2px 8px; border-radius: 999px; }\n.bw-src.obs { background:\
+            \ rgba(22,163,74,0.15); color: #16a34a; }\n.bw-src.man { background: rgba(217,119,6,0.16);\
+            \ color: #d97706; }\n"
+          grid_options:
+            columns: 6
+          show_icon: false
+          show_name: false
+          show_state: false
+          styles:
+            card:
+            - border-radius: 18px
+            - padding: '0'
+            - box-shadow: none
+            custom_fields:
+              content:
+              - width: 100%
+            grid:
+            - grid-template-areas: '"content"'
+            - grid-template-columns: 1fr
+          tap_action:
+            action: more-info
+          type: custom:button-card
+        columns: 2
+        square: false
+        type: grid
+      - cards:
+        - entity: sensor.bazen_aseko_asin_aqua_salt_110195262_backwash_interval
+          icon: mdi:calendar-sync
+          icon_color: blue
+          primary: Interval
+          secondary: "{{ states('sensor.bazen_aseko_asin_aqua_salt_110195262_backwash_interval')\
+            \ }} dn\xED"
+          type: custom:mushroom-template-card
+        - entity: sensor.bazen_aseko_asin_aqua_salt_110195262_backwash_start_time
+          icon: mdi:clock-start
+          name: "\u0160tart"
+          type: tile
+        - entity: sensor.bazen_aseko_asin_aqua_salt_110195262_backwash_duration
+          icon: mdi:timer-sand
+          icon_color: blue
+          primary: Trvanie
+          secondary: '{% set s = states(''sensor.bazen_aseko_asin_aqua_salt_110195262_backwash_duration'')
+            | int(0) %}{{ ''%d:%02d'' | format(s // 60, s % 60) }} min'
+          type: custom:mushroom-template-card
+        columns: 3
+        square: false
+        type: grid
+      type: grid
+    title: "Baz\xE9n"
+    type: sections
+  - icon: mdi:chart-line
+    max_columns: 2
+    path: trendy
+    sections:
+    - cards:
+      - heading: "Ch\xE9mia vody"
+        heading_style: title
+        icon: mdi:flask-outline
+        type: heading
+      - apex_config:
+          chart:
+            height: 320
+            toolbar:
+              show: false
+          grid:
+            borderColor: rgba(128,128,128,0.2)
+          stroke:
+            curve: smooth
+            width: 3
+        card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  box-shadow: 0 8px 24px rgba(0,0,0,0.12);\n\
+            \  overflow: hidden;\n}\n"
+        graph_span: 48h
+        header:
+          colorize_states: true
+          show: true
+          show_states: true
+          title: "Chemick\xE1 stabilita vody"
+        series:
+        - color: '#2e7d32'
+          entity: sensor.bazen_aseko_asin_aqua_salt_110195262_ph
+          group_by:
+            duration: 15min
+            func: avg
+          name: pH
+          yaxis_id: ph
+        - color: '#1976d2'
+          entity: sensor.bazen_aseko_asin_aqua_salt_110195262_redox_potential
+          group_by:
+            duration: 15min
+            func: avg
+          name: Redox
+          yaxis_id: redox
+        type: custom:apexcharts-card
+        yaxis:
+        - decimals: 1
+          id: ph
+          max: 7.6
+          min: 6.4
+        - decimals: 0
+          id: redox
+          max: 700
+          min: 300
+          opposite: true
+      column_span: 2
+      type: grid
+    - cards:
+      - heading: Teplota a salinita
+        heading_style: title
+        icon: mdi:thermometer-water
+        type: heading
+      - apex_config:
+          chart:
+            height: 320
+            toolbar:
+              show: false
+          grid:
+            borderColor: rgba(128,128,128,0.2)
+          stroke:
+            curve: smooth
+            width: 3
+        card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  box-shadow: 0 8px 24px rgba(0,0,0,0.12);\n\
+            \  overflow: hidden;\n}\n"
+        graph_span: 48h
+        header:
+          colorize_states: true
+          show: true
+          show_states: true
+          title: Teplota a salinita
+        series:
+        - color: '#ef6c00'
+          entity: sensor.bazen_aseko_asin_aqua_salt_110195262_water_temperature
+          group_by:
+            duration: 15min
+            func: avg
+          name: Teplota
+          yaxis_id: temp
+        - color: '#00897b'
+          entity: sensor.bazen_aseko_asin_aqua_salt_110195262_salinity
+          group_by:
+            duration: 15min
+            func: avg
+          name: Salinita
+          yaxis_id: salt
+        type: custom:apexcharts-card
+        yaxis:
+        - decimals: 1
+          id: temp
+          max: 40
+          min: 0
+        - decimals: 1
+          id: salt
+          max: 5.5
+          min: 2.5
+          opposite: true
+      column_span: 2
+      type: grid
+    - cards:
+      - heading: Porovnanie teplomerov
+        heading_style: subtitle
+        icon: mdi:compare-horizontal
+        type: heading
+      - apex_config:
+          chart:
+            height: 300
+            toolbar:
+              show: false
+          grid:
+            borderColor: rgba(128,128,128,0.2)
+          stroke:
+            curve: smooth
+            width: 3
+        card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  box-shadow: 0 8px 24px rgba(0,0,0,0.12);\n\
+            \  overflow: hidden;\n}\n"
+        graph_span: 48h
+        header:
+          colorize_states: true
+          show: true
+          show_states: true
+          title: "Dno baz\xE9na vs. pr\xEDvod z filtra"
+        series:
+        - color: '#0284c7'
+          entity: sensor.0xa4c1380615dcffff_temperature
+          group_by:
+            duration: 15min
+            func: avg
+          name: "Dno baz\xE9na"
+        - color: '#ea580c'
+          entity: sensor.bazen_aseko_asin_aqua_salt_110195262_water_temperature
+          group_by:
+            duration: 15min
+            func: avg
+          name: "Pr\xEDvod z filtra"
+        type: custom:apexcharts-card
+      column_span: 2
+      type: grid
+    - cards:
+      - heading: Hladina vody
+        heading_style: subtitle
+        icon: mdi:waves
+        type: heading
+      - card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  padding: 8px;\n  box-shadow:\
+            \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+        days_to_show: 30
+        entities:
+        - sensor.bazen_aseko_asin_aqua_salt_110195262_water_level
+        period: day
+        stat_types:
+        - min
+        - mean
+        - max
+        type: statistics-graph
+      column_span: 2
+      type: grid
+    - cards:
+      - heading: "R\xFDchly poh\u013Ead 24 h"
+        heading_style: subtitle
+        icon: mdi:chart-bell-curve
+        type: heading
+      - cards:
+        - animate: true
+          card_mod:
+            style: "ha-card {\n  border-radius: 24px;\n  padding: 8px;\n  box-shadow:\
+              \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+          color_thresholds:
+          - color: '#d32f2f'
+            value: 6
+          - color: '#f9a825'
+            value: 6.8
+          - color: '#2e7d32'
+            value: 7
+          - color: '#f9a825'
+            value: 7.4
+          - color: '#d32f2f'
+            value: 7.6
+          entities:
+          - entity: sensor.bazen_aseko_asin_aqua_salt_110195262_ph
+            name: pH
+          font_size: 85
+          hours_to_show: 24
+          icon: mdi:ph
+          line_width: 4
+          name: pH
+          points_per_hour: 2
+          show:
+            average: true
+            extrema: true
+            fill: fade
+          type: custom:mini-graph-card
+        - animate: true
+          card_mod:
+            style: "ha-card {\n  border-radius: 24px;\n  padding: 8px;\n  box-shadow:\
+              \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+          color_thresholds:
+          - color: '#d32f2f'
+            value: 0
+          - color: '#f9a825'
+            value: 500
+          - color: '#2e7d32'
+            value: 650
+          - color: '#f9a825'
+            value: 850
+          entities:
+          - entity: sensor.bazen_aseko_asin_aqua_salt_110195262_redox_potential
+            name: Redox
+          font_size: 85
+          hours_to_show: 24
+          icon: mdi:shield-check
+          line_width: 4
+          name: Redox
+          points_per_hour: 2
+          show:
+            average: true
+            extrema: true
+            fill: fade
+          type: custom:mini-graph-card
+        - animate: true
+          card_mod:
+            style: "ha-card {\n  border-radius: 24px;\n  padding: 8px;\n  box-shadow:\
+              \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+          color_thresholds:
+          - color: '#1565c0'
+            value: 0
+          - color: '#f9a825'
+            value: 18
+          - color: '#2e7d32'
+            value: 24
+          - color: '#ef6c00'
+            value: 31
+          - color: '#d32f2f'
+            value: 35
+          entities:
+          - entity: sensor.bazen_aseko_asin_aqua_salt_110195262_water_temperature
+            name: Teplota
+          font_size: 85
+          hours_to_show: 24
+          icon: mdi:thermometer-water
+          line_width: 4
+          name: Teplota
+          points_per_hour: 2
+          show:
+            average: true
+            extrema: true
+            fill: fade
+          type: custom:mini-graph-card
+        - animate: true
+          card_mod:
+            style: "ha-card {\n  border-radius: 24px;\n  padding: 8px;\n  box-shadow:\
+              \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+          color_thresholds:
+          - color: '#d32f2f'
+            value: 0
+          - color: '#f9a825'
+            value: 2.5
+          - color: '#2e7d32'
+            value: 3
+          - color: '#f9a825'
+            value: 4.5
+          - color: '#d32f2f'
+            value: 5.5
+          entities:
+          - entity: sensor.bazen_aseko_asin_aqua_salt_110195262_salinity
+            name: "So\u013E"
+          font_size: 85
+          hours_to_show: 24
+          icon: mdi:shaker-outline
+          line_width: 4
+          name: "So\u013E"
+          points_per_hour: 2
+          show:
+            average: true
+            extrema: true
+            fill: fade
+          type: custom:mini-graph-card
+        columns: 2
+        square: false
+        type: grid
+      column_span: 2
+      type: grid
+    - cards:
+      - heading: "Dop\xFA\u0161\u0165anie vody"
+        heading_style: title
+        icon: mdi:water-plus
+        type: heading
+      - card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  padding: 8px;\n  box-shadow:\
+            \ 0 8px 24px rgba(0,0,0,0.12);\n}\n"
+        entities:
+        - entity: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_water_filling_active
+          name: "Dop\xFA\u0161\u0165anie"
+        - entity: sensor.bazen_aseko_asin_aqua_salt_110195262_water_level
+          name: Hladina
+        hours_to_show: 168
+        title: "Kedy sa dop\xFA\u0161\u0165alo (7 dn\xED)"
+        type: history-graph
+      - apex_config:
+          chart:
+            height: 300
+            toolbar:
+              show: false
+          grid:
+            borderColor: rgba(128,128,128,0.2)
+          stroke:
+            curve: smooth
+            width:
+            - 3
+            - 0
+        card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  box-shadow: 0 8px 24px rgba(0,0,0,0.12);\n\
+            \  overflow: hidden;\n}\n"
+        graph_span: 7d
+        header:
+          colorize_states: true
+          show: true
+          show_states: true
+          title: "Hladina a dop\xFA\u0161\u0165anie"
+        series:
+        - color: '#0284c7'
+          entity: sensor.bazen_aseko_asin_aqua_salt_110195262_water_level
+          group_by:
+            duration: 30min
+            func: avg
+          name: Hladina
+          yaxis_id: lvl
+        - color: '#1d4ed8'
+          curve: stepline
+          entity: binary_sensor.bazen_aseko_asin_aqua_salt_110195262_water_filling_active
+          group_by:
+            duration: 5min
+            func: max
+          name: "Dop\xFA\u0161\u0165anie"
+          opacity: 0.25
+          transform: 'return x === ''on'' ? 1 : 0;'
+          type: area
+          yaxis_id: fill
+        type: custom:apexcharts-card
+        yaxis:
+        - decimals: 0
+          id: lvl
+        - id: fill
+          max: 1
+          min: 0
+          opposite: true
+          show: false
+      - apex_config:
+          chart:
+            height: 240
+            toolbar:
+              show: false
+            type: column
+          dataLabels:
+            enabled: false
+          grid:
+            borderColor: rgba(128,128,128,0.2)
+          plotOptions:
+            bar:
+              borderRadius: 4
+              columnWidth: 45%
+        card_mod:
+          style: "ha-card {\n  border-radius: 24px;\n  box-shadow: 0 8px 24px rgba(0,0,0,0.12);\n\
+            \  overflow: hidden;\n}\n"
+        graph_span: 30d
+        header:
+          colorize_states: true
+          show: true
+          show_states: true
+          title: "Ako dlho trvalo dop\xFA\u0161\u0165anie"
+        series:
+        - color: '#1d4ed8'
+          entity: input_number.bazen_trvanie_posledneho_dopustania
+          group_by:
+            duration: 1d
+            func: max
+          name: Trvanie
+          type: column
+          yaxis_id: min
+        type: custom:apexcharts-card
+        yaxis:
+        - apex_config:
+            title:
+              text: "min\xFAty"
+          decimals: 0
+          id: min
+          min: 0
+      column_span: 2
+      type: grid
+    title: Trendy
+    type: sections

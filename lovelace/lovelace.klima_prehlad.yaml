@@ -1,0 +1,657 @@
+config:
+  title: "Kl\xEDma \u2013 kompaktn\xFD modern\xFD preh\u013Ead"
+  views:
+  - cards:
+    - card_mod:
+        style: "ha-card {\n  border-radius: 24px;\n  overflow: hidden;\n  border:\
+          \ 1px solid color-mix(in srgb, var(--primary-text-color) 9%, transparent);\n\
+          \  box-shadow: 0 8px 26px rgba(0,0,0,0.06);\n}\n"
+      cards:
+      - alignment: start
+        subtitle: "Aktu\xE1lny stav hlavn\xFDch miestnost\xED"
+        title: Dom a kvalita vzduchu
+        type: custom:mushroom-title-card
+      - card_mod:
+          style: "ha-card {\n  margin: 0 8px 8px;\n  border-radius: 20px;\n  border:\
+            \ 1px solid color-mix(in srgb, var(--primary-color) 16%, transparent);\n\
+            \  background: color-mix(in srgb, var(--primary-color) 7%, var(--ha-card-background,\
+            \ var(--card-background-color)));\n  box-shadow: none;\n}\n"
+        icon: mdi:home-analytics
+        icon_color: "{% set m = [\n  states('sensor.jablotron_futura_ui_ovladac_1_co2')\
+          \ | float(0),\n  states('sensor.jablotron_futura_senzor_1_co2') | float(0),\n\
+          \  states('sensor.jablotron_futura_senzor_2_co2') | float(0),\n  states('sensor.jablotron_futura_senzor_3_co2')\
+          \ | float(0)\n] | max %} {% if m >= 1500 %}red {% elif m >= 1000 %}orange\
+          \ {% elif m >= 800 %}yellow {% else %}green {% endif %}\n"
+        multiline_secondary: true
+        primary: "{% set a = states('sensor.jablotron_futura_ui_ovladac_1_co2') |\
+          \ float(0) %} {% set b = states('sensor.jablotron_futura_senzor_1_co2')\
+          \ | float(0) %} {% set c = states('sensor.jablotron_futura_senzor_2_co2')\
+          \ | float(0) %} {% set d = states('sensor.jablotron_futura_senzor_3_co2')\
+          \ | float(0) %} {% set m = [a,b,c,d] | max %} {% if m >= 1500 %}Zl\xE1 kvalita\
+          \ vzduchu {% elif m >= 1000 %}Treba vyvetra\u0165 {% elif m >= 800 %}Vzduch\
+          \ je mierne vyd\xFDchan\xFD {% else %}Kl\xEDma domu je v poriadku {% endif\
+          \ %}\n"
+        secondary: "{% set a = states('sensor.jablotron_futura_ui_ovladac_1_co2')\
+          \ | float(0) %}\n{% set b = states('sensor.jablotron_futura_senzor_1_co2')\
+          \ | float(0) %}\n{% set c = states('sensor.jablotron_futura_senzor_2_co2')\
+          \ | float(0) %}\n{% set d = states('sensor.jablotron_futura_senzor_3_co2')\
+          \ | float(0) %}\n{% set m = [a,b,c,d] | max %}\n{% if m == a %}Najvy\u0161\
+          \u0161ie CO\u2082: Ob\xFDva\u010Dka \xB7 {{ m | round(0) }} ppm\n{% elif\
+          \ m == b %}Najvy\u0161\u0161ie CO\u2082: Detsk\xE1 Mato \xB7 {{ m | round(0)\
+          \ }} ppm\n{% elif m == c %}Najvy\u0161\u0161ie CO\u2082: Sp\xE1l\u0148a\
+          \ \xB7 {{ m | round(0) }} ppm\n{% else %}Najvy\u0161\u0161ie CO\u2082: Detsk\xE1\
+          \ Ena \xB7 {{ m | round(0) }} ppm\n{% endif %}\n"
+        tap_action:
+          action: none
+        type: custom:mushroom-template-card
+      - cards:
+        - card_mod:
+            style: "ha-card {\n  min-height: 94px;\n  border-radius: 18px;\n  box-shadow:\
+              \ none;\n}\n"
+          entity: sensor.jablotron_futura_ui_ovladac_1_co2
+          fill_container: true
+          icon: mdi:sofa-outline
+          icon_color: '{% set c = states(''sensor.jablotron_futura_ui_ovladac_1_co2'')
+            | float(0) %} {% if c >= 1500 %}red{% elif c >= 1000 %}orange{% elif c
+            >= 800 %}yellow{% else %}green{% endif %}
+
+            '
+          multiline_secondary: true
+          primary: "Ob\xFDva\u010Dka"
+          secondary: "{{ states('sensor.jablotron_futura_ui_ovladac_1_teplota') }}\
+            \ \xB0C \xB7 {{ states('sensor.jablotron_futura_ui_ovladac_1_vlhkost')\
+            \ }} %\nCO\u2082 {{ states('sensor.jablotron_futura_ui_ovladac_1_co2')\
+            \ }} ppm\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: "ha-card {\n  min-height: 94px;\n  border-radius: 18px;\n  box-shadow:\
+              \ none;\n}\n"
+          entity: sensor.jablotron_futura_senzor_1_co2
+          fill_container: true
+          icon: mdi:teddy-bear
+          icon_color: '{% set c = states(''sensor.jablotron_futura_senzor_1_co2'')
+            | float(0) %} {% if c >= 1500 %}red{% elif c >= 1000 %}orange{% elif c
+            >= 800 %}yellow{% else %}green{% endif %}
+
+            '
+          multiline_secondary: true
+          primary: "Detsk\xE1 Mato"
+          secondary: "{{ states('sensor.jablotron_futura_senzor_1_teplota') }} \xB0\
+            C \xB7 {{ states('sensor.jablotron_futura_senzor_1_vlhkost') }} %\nCO\u2082\
+            \ {{ states('sensor.jablotron_futura_senzor_1_co2') }} ppm\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: "ha-card {\n  min-height: 94px;\n  border-radius: 18px;\n  box-shadow:\
+              \ none;\n}\n"
+          entity: sensor.jablotron_futura_senzor_2_co2
+          fill_container: true
+          icon: mdi:bed-king-outline
+          icon_color: '{% set c = states(''sensor.jablotron_futura_senzor_2_co2'')
+            | float(0) %} {% if c >= 1500 %}red{% elif c >= 1000 %}orange{% elif c
+            >= 800 %}yellow{% else %}green{% endif %}
+
+            '
+          multiline_secondary: true
+          primary: "Sp\xE1l\u0148a"
+          secondary: "{{ states('sensor.jablotron_futura_senzor_2_teplota') }} \xB0\
+            C \xB7 {{ states('sensor.jablotron_futura_senzor_2_vlhkost') }} %\nCO\u2082\
+            \ {{ states('sensor.jablotron_futura_senzor_2_co2') }} ppm\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: "ha-card {\n  min-height: 94px;\n  border-radius: 18px;\n  box-shadow:\
+              \ none;\n}\n"
+          entity: sensor.jablotron_futura_senzor_3_co2
+          fill_container: true
+          icon: mdi:teddy-bear
+          icon_color: '{% set c = states(''sensor.jablotron_futura_senzor_3_co2'')
+            | float(0) %} {% if c >= 1500 %}red{% elif c >= 1000 %}orange{% elif c
+            >= 800 %}yellow{% else %}green{% endif %}
+
+            '
+          multiline_secondary: true
+          primary: "Detsk\xE1 Ena"
+          secondary: "{{ states('sensor.jablotron_futura_senzor_3_teplota') }} \xB0\
+            C \xB7 {{ states('sensor.jablotron_futura_senzor_3_vlhkost') }} %\nCO\u2082\
+            \ {{ states('sensor.jablotron_futura_senzor_3_co2') }} ppm\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        columns: 2
+        square: false
+        type: grid
+      - alignment: start
+        card_mod:
+          style: "ha-card {\n  padding: 2px 10px 10px;\n}\n"
+        chips:
+        - content: "Ultra {{ states('sensor.emotion_ultra_2_e04b410243ae_temperature')\
+            \ }}\xB0\n"
+          entity: sensor.emotion_ultra_2_e04b410243ae_temperature
+          icon: mdi:thermometer
+          icon_color: green
+          tap_action:
+            action: more-info
+          type: template
+        - content: '{{ states(''sensor.emotion_ultra_2_e04b410243ae_humidity'') }}
+            %
+
+            '
+          entity: sensor.emotion_ultra_2_e04b410243ae_humidity
+          icon: mdi:water-percent
+          icon_color: blue
+          tap_action:
+            action: more-info
+          type: template
+        - content: '{{ states(''sensor.emotion_ultra_2_e04b410243ae_illuminance'')
+            }} lx
+
+            '
+          entity: sensor.emotion_ultra_2_e04b410243ae_illuminance
+          icon: mdi:brightness-6
+          icon_color: yellow
+          tap_action:
+            action: more-info
+          type: template
+        type: custom:mushroom-chips-card
+      keep:
+        background: false
+        border_radius: false
+        box_shadow: false
+        margin: false
+      mode: vertical
+      type: custom:stack-in-card
+    - card_mod:
+        style: "ha-card {\n  border-radius: 24px;\n  overflow: hidden;\n  border:\
+          \ 1px solid color-mix(in srgb, var(--primary-text-color) 9%, transparent);\n\
+          \  box-shadow: 0 8px 26px rgba(0,0,0,0.06);\n}\n"
+      cards:
+      - alignment: start
+        subtitle: "Ka\u017Ed\xE1 miestnos\u0165 samostatne \u2013 bez ne\u010Ditate\u013E\
+          nej zmesi \u010Diar"
+        title: "CO\u2082 za 12 hod\xEDn"
+        type: custom:mushroom-title-card
+      - cards:
+        - aggregate_func: avg
+          animate: true
+          card_mod:
+            style: "ha-card {\n  border-radius: 18px;\n  box-shadow: none;\n}\n"
+          color_thresholds:
+          - color: '#43a047'
+            value: 0
+          - color: '#f9a825'
+            value: 800
+          - color: '#fb8c00'
+            value: 1000
+          - color: '#e53935'
+            value: 1500
+          color_thresholds_transition: smooth
+          entities:
+          - sensor.jablotron_futura_ui_ovladac_1_co2
+          height: 82
+          hour24: true
+          hours_to_show: 12
+          icon: mdi:sofa-outline
+          line_width: 3
+          lower_bound: 400
+          name: "Ob\xFDva\u010Dka"
+          points_per_hour: 2
+          show:
+            extrema: false
+            fill: fade
+            icon: true
+            labels: false
+            name: true
+            points: false
+            state: true
+          type: custom:mini-graph-card
+        - aggregate_func: avg
+          animate: true
+          card_mod:
+            style: "ha-card {\n  border-radius: 18px;\n  box-shadow: none;\n}\n"
+          color_thresholds:
+          - color: '#43a047'
+            value: 0
+          - color: '#f9a825'
+            value: 800
+          - color: '#fb8c00'
+            value: 1000
+          - color: '#e53935'
+            value: 1500
+          color_thresholds_transition: smooth
+          entities:
+          - sensor.jablotron_futura_senzor_1_co2
+          height: 82
+          hour24: true
+          hours_to_show: 12
+          icon: mdi:teddy-bear
+          line_width: 3
+          lower_bound: 400
+          name: "Detsk\xE1 Mato"
+          points_per_hour: 2
+          show:
+            extrema: false
+            fill: fade
+            icon: true
+            labels: false
+            name: true
+            points: false
+            state: true
+          type: custom:mini-graph-card
+        - aggregate_func: avg
+          animate: true
+          card_mod:
+            style: "ha-card {\n  border-radius: 18px;\n  box-shadow: none;\n}\n"
+          color_thresholds:
+          - color: '#43a047'
+            value: 0
+          - color: '#f9a825'
+            value: 800
+          - color: '#fb8c00'
+            value: 1000
+          - color: '#e53935'
+            value: 1500
+          color_thresholds_transition: smooth
+          entities:
+          - sensor.jablotron_futura_senzor_2_co2
+          height: 82
+          hour24: true
+          hours_to_show: 12
+          icon: mdi:bed-king-outline
+          line_width: 3
+          lower_bound: 400
+          name: "Sp\xE1l\u0148a"
+          points_per_hour: 2
+          show:
+            extrema: false
+            fill: fade
+            icon: true
+            labels: false
+            name: true
+            points: false
+            state: true
+          type: custom:mini-graph-card
+        - aggregate_func: avg
+          animate: true
+          card_mod:
+            style: "ha-card {\n  border-radius: 18px;\n  box-shadow: none;\n}\n"
+          color_thresholds:
+          - color: '#43a047'
+            value: 0
+          - color: '#f9a825'
+            value: 800
+          - color: '#fb8c00'
+            value: 1000
+          - color: '#e53935'
+            value: 1500
+          color_thresholds_transition: smooth
+          entities:
+          - sensor.jablotron_futura_senzor_3_co2
+          height: 82
+          hour24: true
+          hours_to_show: 12
+          icon: mdi:teddy-bear
+          line_width: 3
+          lower_bound: 400
+          name: "Detsk\xE1 Ena"
+          points_per_hour: 2
+          show:
+            extrema: false
+            fill: fade
+            icon: true
+            labels: false
+            name: true
+            points: false
+            state: true
+          type: custom:mini-graph-card
+        columns: 2
+        square: false
+        type: grid
+      keep:
+        background: false
+        border_radius: false
+        box_shadow: false
+        margin: false
+      mode: vertical
+      type: custom:stack-in-card
+    - card_mod:
+        style: "ha-card {\n  border-radius: 24px;\n  overflow: hidden;\n  border:\
+          \ 1px solid color-mix(in srgb, var(--primary-text-color) 9%, transparent);\n\
+          \  box-shadow: 0 8px 26px rgba(0,0,0,0.06);\n}\n"
+      cards:
+      - alignment: start
+        subtitle: "Teplota, vlhkos\u0165 a svetlo"
+        title: "K\xFApe\u013Ene a chodby"
+        type: custom:mushroom-title-card
+      - cards:
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          entity: sensor.0x54ef441001496af8_temperature
+          fill_container: true
+          icon: mdi:shower
+          icon_color: '{% set h = states(''sensor.0x54ef441001496af8_humidity'') |
+            float(0) %} {% if h > 70 %}blue{% elif h < 35 %}orange{% else %}green{%
+            endif %}
+
+            '
+          multiline_secondary: true
+          primary: "K\xFApe\u013E\u0148a dole"
+          secondary: "{{ states('sensor.0x54ef441001496af8_temperature') }} \xB0C\
+            \ \xB7 {{ states('sensor.0x54ef441001496af8_humidity') }} %\nSvetlo {{\
+            \ states('sensor.0x54ef441001496af8_illuminance') }} lx\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          entity: sensor.0x54ef4410014989c8_temperature
+          fill_container: true
+          icon: mdi:bathtub-outline
+          icon_color: '{% set h = states(''sensor.0x54ef4410014989c8_humidity'') |
+            float(0) %} {% if h > 70 %}blue{% elif h < 35 %}orange{% else %}green{%
+            endif %}
+
+            '
+          multiline_secondary: true
+          primary: "K\xFApe\u013E\u0148a hore"
+          secondary: "{{ states('sensor.0x54ef4410014989c8_temperature') }} \xB0C\
+            \ \xB7 {{ states('sensor.0x54ef4410014989c8_humidity') }} %\nSvetlo {{\
+            \ states('sensor.0x54ef4410014989c8_illuminance') }} lx\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          entity: sensor.0x54ef44100149aa3d_temperature
+          fill_container: true
+          icon: mdi:door-open
+          icon_color: green
+          multiline_secondary: true
+          primary: "Vstupn\xE1 chodba"
+          secondary: "{{ states('sensor.0x54ef44100149aa3d_temperature') }} \xB0C\
+            \ \xB7 {{ states('sensor.0x54ef44100149aa3d_humidity') }} %\nSvetlo {{\
+            \ states('sensor.0x54ef44100149aa3d_illuminance') }} lx\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          entity: sensor.0x54ef4410015b9a6d_illuminance
+          fill_container: true
+          icon: mdi:stairs
+          icon_color: yellow
+          multiline_secondary: true
+          primary: Chodba a WC hore
+          secondary: 'Chodba {{ states(''sensor.0x54ef4410015b9a6d_illuminance'')
+            }} lx
+
+            WC {{ states(''sensor.0xa4c1388644c8589d_illuminance'') }} lx
+
+            '
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        columns: 2
+        square: false
+        type: grid
+      - alignment: start
+        chips:
+        - content: "Senzor 2 {{ states('sensor.kupelka_hore_senzor_2_device_temperature')\
+            \ }}\xB0\n"
+          entity: sensor.kupelka_hore_senzor_2_device_temperature
+          icon: mdi:chip
+          icon_color: grey
+          tap_action:
+            action: more-info
+          type: template
+        - content: '{{ states(''sensor.kupelka_hore_senzor_2_illuminance'') }} lx
+
+            '
+          entity: sensor.kupelka_hore_senzor_2_illuminance
+          icon: mdi:brightness-6
+          icon_color: yellow
+          tap_action:
+            action: more-info
+          type: template
+        type: custom:mushroom-chips-card
+      keep:
+        background: false
+        border_radius: false
+        box_shadow: false
+        margin: false
+      mode: vertical
+      type: custom:stack-in-card
+    - card_mod:
+        style: "ha-card {\n  border-radius: 24px;\n  overflow: hidden;\n  border:\
+          \ 1px solid color-mix(in srgb, var(--primary-text-color) 9%, transparent);\n\
+          \  box-shadow: 0 8px 26px rgba(0,0,0,0.06);\n}\n"
+      cards:
+      - alignment: start
+        subtitle: "Technick\xE1 miestnos\u0165, dom\u010Dek a ko\u010Dik\xE1re\u0148"
+        title: "Technick\xE9 priestory"
+        type: custom:mushroom-title-card
+      - cards:
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          entity: sensor.0xa4c138f46bc88519_temperature
+          fill_container: true
+          icon: mdi:cog-outline
+          icon_color: '{% set t = states(''sensor.0xa4c138f46bc88519_temperature'')
+            | float(0) %} {% if t < 8 %}blue{% elif t > 30 %}red{% else %}green{%
+            endif %}
+
+            '
+          multiline_secondary: true
+          primary: "Technick\xE1 miestnos\u0165"
+          secondary: "{{ states('sensor.0xa4c138f46bc88519_temperature') }} \xB0C\
+            \ \xB7 {{ states('sensor.0xa4c138f46bc88519_humidity') }} %\nSvetlo {{\
+            \ states('sensor.0xa4c138f46bc88519_illuminance') }} lx\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          entity: sensor.0xa4c138671b8861ca_temperature
+          fill_container: true
+          icon: mdi:greenhouse
+          icon_color: '{% set t = states(''sensor.0xa4c138671b8861ca_temperature'')
+            | float(0) %} {% if t < 5 %}blue{% elif t > 30 %}red{% else %}green{%
+            endif %}
+
+            '
+          multiline_secondary: true
+          primary: "Z\xE1hradn\xFD dom\u010Dek"
+          secondary: "{{ states('sensor.0xa4c138671b8861ca_temperature') }} \xB0C\n\
+            Vlhkos\u0165 {{ states('sensor.0xa4c138671b8861ca_humidity') }} %\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          entity: sensor.00158d000542d08a_temperature
+          fill_container: true
+          icon: mdi:bicycle
+          icon_color: purple
+          multiline_secondary: true
+          primary: "Ko\u010Dik\xE1re\u0148"
+          secondary: "{{ states('sensor.00158d000542d08a_temperature') }} \xB0C \xB7\
+            \ {{ states('sensor.00158d000542d08a_humidity') }} %\nTlak {{ states('sensor.00158d000542d08a_pressure')\
+            \ }}\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          fill_container: true
+          icon: mdi:access-point-check
+          icon_color: "{% set values = [\n  states('sensor.0xa4c138f46bc88519_temperature'),\n\
+            \  states('sensor.0xa4c138671b8861ca_temperature'),\n  states('sensor.00158d000542d08a_temperature')\n\
+            ] %} {% if 'unknown' in values or 'unavailable' in values %}orange{% else\
+            \ %}green{% endif %}\n"
+          multiline_secondary: true
+          primary: "Stav technick\xFDch senzorov"
+          secondary: "{% set values = [\n  states('sensor.0xa4c138f46bc88519_temperature'),\n\
+            \  states('sensor.0xa4c138671b8861ca_temperature'),\n  states('sensor.00158d000542d08a_temperature')\n\
+            ] %}\n{% if 'unknown' in values or 'unavailable' in values %}\nNiektor\xFD\
+            \ senzor nie je dostupn\xFD\n{% else %}\nV\u0161etky hlavn\xE9 senzory\
+            \ s\xFA dostupn\xE9\n{% endif %}\n"
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        columns: 2
+        square: false
+        type: grid
+      keep:
+        background: false
+        border_radius: false
+        box_shadow: false
+        margin: false
+      mode: vertical
+      type: custom:stack-in-card
+    - card_mod:
+        style: "ha-card {\n  border-radius: 24px;\n  overflow: hidden;\n  border:\
+          \ 1px solid color-mix(in srgb, var(--primary-text-color) 9%, transparent);\n\
+          \  box-shadow: 0 8px 26px rgba(0,0,0,0.06);\n}\n"
+      cards:
+      - alignment: start
+        subtitle: "Voda, p\xF4da, d\xE1\u017E\u010F a svetlo"
+        title: "Baz\xE9n a z\xE1hrada"
+        type: custom:mushroom-title-card
+      - cards:
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          entity: sensor.aseko_asin_aqua_salt_110195262_water_temperature
+          fill_container: true
+          icon: mdi:pool-thermometer
+          icon_color: blue
+          multiline_secondary: true
+          primary: "Baz\xE9n"
+          secondary: "Voda {{ states('sensor.aseko_asin_aqua_salt_110195262_water_temperature')\
+            \ }} \xB0C\nDno {{ states('sensor.0xa4c1380615dcffff_temperature') }}\
+            \ \xB0C\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          entity: sensor.0xa4c13836fe19c2dd_humidity
+          fill_container: true
+          icon: mdi:sprout-outline
+          icon_color: '{% set h = states(''sensor.0xa4c13836fe19c2dd_humidity'') |
+            float(0) %} {% if h < 25 %}red{% elif h < 40 %}orange{% else %}green{%
+            endif %}
+
+            '
+          multiline_secondary: true
+          primary: "P\xF4da"
+          secondary: "{{ states('sensor.0xa4c13836fe19c2dd_temperature') }} \xB0C\n\
+            Vlhkos\u0165 {{ states('sensor.0xa4c13836fe19c2dd_humidity') }} %\n"
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          entity: sensor.0xa4c13874a7c6714c_rainwater
+          fill_container: true
+          icon: mdi:weather-rainy
+          icon_color: blue
+          multiline_secondary: true
+          primary: "D\xE1\u017E\u010F"
+          secondary: 'Voda {{ states(''sensor.0xa4c13874a7c6714c_rainwater'') }}
+
+            Senzor {{ states(''sensor.0xa4c13874a7c6714c_illuminance'') }} lx
+
+            '
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        - card_mod:
+            style: 'ha-card { min-height: 92px; border-radius: 18px; box-shadow: none;
+              }
+
+              '
+          entity: sensor.terasa_senzor_illumination
+          fill_container: true
+          icon: mdi:patio-heater
+          icon_color: yellow
+          multiline_secondary: true
+          primary: Terasa
+          secondary: 'Osvetlenie
+
+            {{ states(''sensor.terasa_senzor_illumination'') }} lx
+
+            '
+          tap_action:
+            action: more-info
+          type: custom:mushroom-template-card
+        columns: 2
+        square: false
+        type: grid
+      - alignment: start
+        chips:
+        - content: 'EC {{ states(''sensor.0xa4c13836fe19c2dd_ec'') }}
+
+            '
+          entity: sensor.0xa4c13836fe19c2dd_ec
+          icon: mdi:flash-outline
+          icon_color: purple
+          tap_action:
+            action: more-info
+          type: template
+        - content: "\xDArodnos\u0165 {{ states('sensor.0xa4c13836fe19c2dd_fertility')\
+            \ }}\n"
+          entity: sensor.0xa4c13836fe19c2dd_fertility
+          icon: mdi:leaf
+          icon_color: green
+          tap_action:
+            action: more-info
+          type: template
+        type: custom:mushroom-chips-card
+      keep:
+        background: false
+        border_radius: false
+        box_shadow: false
+        margin: false
+      mode: vertical
+      type: custom:stack-in-card
+    icon: mdi:home-thermometer-outline
+    path: klima
+    title: "Kl\xEDma"
+    type: masonry

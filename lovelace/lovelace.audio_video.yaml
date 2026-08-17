@@ -1,0 +1,531 @@
+config:
+  title: Audio / Video
+  views:
+  - icon: mdi:speaker-multiple
+    max_columns: 3
+    path: sonos
+    sections:
+    - cards:
+      - alignment: start
+        subtitle: TV, hudba, surround a subwoofer
+        title: "Ob\xFDva\u010Dka"
+        type: custom:mushroom-title-card
+      - cards:
+        - collapsible_controls: true
+          entity: media_player.living_room
+          icon: mdi:speaker-multiple
+          media_controls:
+          - previous
+          - play_pause_stop
+          - next
+          name: "Sonos ob\xFDva\u010Dka"
+          show_volume_level: true
+          tap_action:
+            action: more-info
+          type: custom:mushroom-media-player-card
+          use_media_artwork: true
+          use_media_info: true
+          volume_controls:
+          - volume_mute
+          - volume_buttons
+          - volume_set
+        - alignment: start
+          chips:
+          - content: '{{ states(''sensor.living_room_audio_input_format'') }}
+
+              '
+            entity: sensor.living_room_audio_input_format
+            icon: mdi:surround-sound
+            icon_color: blue
+            tap_action:
+              action: more-info
+            type: template
+          - content: "Mikrof\xF3n"
+            entity: binary_sensor.living_room_microphone
+            icon: mdi:microphone
+            icon_color: "{% if is_state('binary_sensor.living_room_microphone', 'on')\
+              \ %}\n  green\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: more-info
+            type: template
+          type: custom:mushroom-chips-card
+        mode: vertical
+        type: custom:stack-in-card
+      - cards:
+        - icon: mdi:tune-variant
+          icon_color: blue
+          primary: "Re\u017Eimy zvuku"
+          secondary: "No\u010Dn\xFD zvuk, re\u010D, loudness, crossfade"
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - alignment: start
+          chips:
+          - content: Noc
+            entity: switch.living_room_night_sound
+            hold_action:
+              action: more-info
+            icon: mdi:weather-night
+            icon_color: "{% if is_state('switch.living_room_night_sound', 'on') %}\n\
+              \  blue\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: "Re\u010D"
+            entity: switch.living_room_speech_enhancement
+            hold_action:
+              action: more-info
+            icon: mdi:account-voice
+            icon_color: "{% if is_state('switch.living_room_speech_enhancement', 'on')\
+              \ %}\n  blue\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: Loud.
+            entity: switch.living_room_loudness
+            hold_action:
+              action: more-info
+            icon: mdi:volume-high
+            icon_color: "{% if is_state('switch.living_room_loudness', 'on') %}\n\
+              \  blue\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: Cross.
+            entity: switch.living_room_crossfade
+            hold_action:
+              action: more-info
+            icon: mdi:shuffle-variant
+            icon_color: "{% if is_state('switch.living_room_crossfade', 'on') %}\n\
+              \  blue\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          type: custom:mushroom-chips-card
+        mode: vertical
+        type: custom:stack-in-card
+      - cards:
+        - icon: mdi:television-speaker
+          icon_color: "{% if is_state('switch.living_room_subwoofer_enabled', 'on')\
+            \ or\n      is_state('switch.living_room_surround_enabled', 'on') %}\n\
+            \  blue\n{% else %}\n  grey\n{% endif %}\n"
+          primary: "Dom\xE1ce kino"
+          secondary: Subwoofer, surround, TV autoplay
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - alignment: start
+          chips:
+          - content: Sub
+            entity: switch.living_room_subwoofer_enabled
+            hold_action:
+              action: more-info
+            icon: mdi:speaker
+            icon_color: "{% if is_state('switch.living_room_subwoofer_enabled', 'on')\
+              \ %}\n  blue\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: Surround
+            entity: switch.living_room_surround_enabled
+            hold_action:
+              action: more-info
+            icon: mdi:surround-sound
+            icon_color: "{% if is_state('switch.living_room_surround_enabled', 'on')\
+              \ %}\n  blue\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: Music full
+            entity: switch.living_room_surround_music_full_volume
+            hold_action:
+              action: more-info
+            icon: mdi:music-circle
+            icon_color: "{% if is_state('switch.living_room_surround_music_full_volume',\
+              \ 'on') %}\n  blue\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: TV auto
+            entity: switch.living_room_living_room_tv_autoplay
+            hold_action:
+              action: more-info
+            icon: mdi:play-circle
+            icon_color: "{% if is_state('switch.living_room_living_room_tv_autoplay',\
+              \ 'on') %}\n  blue\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: Ungroup
+            entity: switch.living_room_living_room_ungroup_on_autoplay
+            hold_action:
+              action: more-info
+            icon: mdi:link-variant-off
+            icon_color: "{% if is_state('switch.living_room_living_room_ungroup_on_autoplay',\
+              \ 'on') %}\n  orange\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          type: custom:mushroom-chips-card
+        mode: vertical
+        type: custom:stack-in-card
+      - cards:
+        - icon: mdi:equalizer
+          icon_color: blue
+          primary: Ladenie zvuku
+          secondary: "Basy, v\xFD\u0161ky, balance, sub, surround"
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - cards:
+          - display_mode: buttons
+            entity: number.living_room_bass
+            icon: mdi:music-clef-bass
+            name: Basy
+            type: custom:mushroom-number-card
+          - display_mode: buttons
+            entity: number.living_room_treble
+            icon: mdi:music-clef-treble
+            name: "V\xFD\u0161ky"
+            type: custom:mushroom-number-card
+          - display_mode: buttons
+            entity: number.living_room_balance
+            icon: mdi:scale-balance
+            name: Balance
+            type: custom:mushroom-number-card
+          - display_mode: buttons
+            entity: number.living_room_sub_gain
+            icon: mdi:speaker
+            name: Sub gain
+            type: custom:mushroom-number-card
+          - display_mode: buttons
+            entity: number.living_room_surround_level
+            icon: mdi:surround-sound
+            name: Surround
+            type: custom:mushroom-number-card
+          - display_mode: buttons
+            entity: number.living_room_music_surround_level
+            icon: mdi:music
+            name: Surround hudba
+            type: custom:mushroom-number-card
+          - display_mode: buttons
+            entity: number.living_room_audio_delay
+            icon: mdi:timer-outline
+            name: Audio delay
+            type: custom:mushroom-number-card
+          - entity: select.living_room_speech_enhancement
+            icon: mdi:account-voice
+            name: "Re\u017Eim re\u010Di"
+            type: custom:mushroom-select-card
+          columns: 2
+          square: false
+          type: grid
+        mode: vertical
+        type: custom:stack-in-card
+      type: grid
+    - cards:
+      - alignment: start
+        subtitle: "Hudba, TV autoplay a bud\xEDky"
+        title: "Sp\xE1l\u0148a"
+        type: custom:mushroom-title-card
+      - cards:
+        - collapsible_controls: true
+          entity: media_player.bedroom
+          icon: mdi:speaker
+          media_controls:
+          - previous
+          - play_pause_stop
+          - next
+          name: "Sonos sp\xE1l\u0148a"
+          show_volume_level: true
+          tap_action:
+            action: more-info
+          type: custom:mushroom-media-player-card
+          use_media_artwork: true
+          use_media_info: true
+          volume_controls:
+          - volume_mute
+          - volume_buttons
+          - volume_set
+        - alignment: start
+          chips:
+          - content: "Mikrof\xF3n"
+            entity: binary_sensor.bedroom_microphone
+            icon: mdi:microphone
+            icon_color: "{% if is_state('binary_sensor.bedroom_microphone', 'on')\
+              \ %}\n  green\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: more-info
+            type: template
+          type: custom:mushroom-chips-card
+        mode: vertical
+        type: custom:stack-in-card
+      - cards:
+        - icon: mdi:tune-variant
+          icon_color: blue
+          primary: "Re\u017Eimy zvuku"
+          secondary: Loudness, crossfade, TV autoplay
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - alignment: start
+          chips:
+          - content: Loud.
+            entity: switch.bedroom_loudness
+            hold_action:
+              action: more-info
+            icon: mdi:volume-high
+            icon_color: "{% if is_state('switch.bedroom_loudness', 'on') %}\n  blue\n\
+              {% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: Cross.
+            entity: switch.bedroom_crossfade
+            hold_action:
+              action: more-info
+            icon: mdi:shuffle-variant
+            icon_color: "{% if is_state('switch.bedroom_crossfade', 'on') %}\n  blue\n\
+              {% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: TV auto
+            entity: switch.bedroom_bedroom_tv_autoplay
+            hold_action:
+              action: more-info
+            icon: mdi:play-circle
+            icon_color: "{% if is_state('switch.bedroom_bedroom_tv_autoplay', 'on')\
+              \ %}\n  blue\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: Ungroup
+            entity: switch.bedroom_bedroom_ungroup_on_autoplay
+            hold_action:
+              action: more-info
+            icon: mdi:link-variant-off
+            icon_color: "{% if is_state('switch.bedroom_bedroom_ungroup_on_autoplay',\
+              \ 'on') %}\n  orange\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          type: custom:mushroom-chips-card
+        mode: vertical
+        type: custom:stack-in-card
+      - cards:
+        - icon: mdi:equalizer
+          icon_color: blue
+          primary: Ladenie zvuku
+          secondary: "Basy, v\xFD\u0161ky, vyv\xE1\u017Eenie"
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - cards:
+          - display_mode: buttons
+            entity: number.bedroom_bass
+            icon: mdi:music-clef-bass
+            name: Basy
+            type: custom:mushroom-number-card
+          - display_mode: buttons
+            entity: number.bedroom_treble
+            icon: mdi:music-clef-treble
+            name: "V\xFD\u0161ky"
+            type: custom:mushroom-number-card
+          - display_mode: buttons
+            entity: number.bedroom_balance
+            icon: mdi:scale-balance
+            name: Balance
+            type: custom:mushroom-number-card
+          columns: 3
+          square: false
+          type: grid
+        mode: vertical
+        type: custom:stack-in-card
+      - cards:
+        - icon: mdi:alarm
+          icon_color: "{% if is_state('switch.sonos_alarm_1', 'on') or\n      is_state('switch.sonos_alarm_5',\
+            \ 'on') or\n      is_state('switch.sonos_alarm_10', 'on') %}\n  blue\n\
+            {% else %}\n  grey\n{% endif %}\n"
+          primary: "Bud\xEDky"
+          secondary: "V\u0161edn\xE9 dni, v\xEDkend, jednorazov\xFD"
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - alignment: start
+          chips:
+          - content: 06:45
+            entity: switch.sonos_alarm_1
+            hold_action:
+              action: more-info
+            icon: mdi:calendar-week
+            icon_color: "{% if is_state('switch.sonos_alarm_1', 'on') %}\n  blue\n\
+              {% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: 09:00
+            entity: switch.sonos_alarm_5
+            hold_action:
+              action: more-info
+            icon: mdi:calendar-weekend
+            icon_color: "{% if is_state('switch.sonos_alarm_5', 'on') %}\n  blue\n\
+              {% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: 07:28
+            entity: switch.sonos_alarm_10
+            hold_action:
+              action: more-info
+            icon: mdi:alarm
+            icon_color: "{% if is_state('switch.sonos_alarm_10', 'on') %}\n  blue\n\
+              {% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          type: custom:mushroom-chips-card
+        mode: vertical
+        type: custom:stack-in-card
+      type: grid
+    - cards:
+      - alignment: start
+        subtitle: "Vonkaj\u0161\xED reproduktor, bat\xE9ria a nab\xEDjanie"
+        title: Terasa
+        type: custom:mushroom-title-card
+      - cards:
+        - collapsible_controls: true
+          entity: media_player.terasa
+          icon: mdi:speaker-wireless
+          media_controls:
+          - previous
+          - play_pause_stop
+          - next
+          name: Sonos terasa
+          show_volume_level: true
+          tap_action:
+            action: more-info
+          type: custom:mushroom-media-player-card
+          use_media_artwork: true
+          use_media_info: true
+          volume_controls:
+          - volume_mute
+          - volume_buttons
+          - volume_set
+        - alignment: start
+          chips:
+          - content: '{{ states(''sensor.terasa_battery'') }} %
+
+              '
+            entity: sensor.terasa_battery
+            icon: mdi:battery
+            icon_color: "{% set b = states('sensor.terasa_battery') | float(0) %}\
+              \ {% if b < 20 %}\n  red\n{% elif b < 40 %}\n  orange\n{% else %}\n\
+              \  green\n{% endif %}\n"
+            tap_action:
+              action: more-info
+            type: template
+          - content: "Nab\xEDjanie\n"
+            entity: binary_sensor.terasa_charging
+            icon: mdi:battery-charging
+            icon_color: "{% if is_state('binary_sensor.terasa_charging', 'on') %}\n\
+              \  green\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: more-info
+            type: template
+          - content: "Mikrof\xF3n"
+            entity: binary_sensor.terasa_microphone
+            icon: mdi:microphone
+            icon_color: "{% if is_state('binary_sensor.terasa_microphone', 'on') %}\n\
+              \  green\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: more-info
+            type: template
+          type: custom:mushroom-chips-card
+        mode: vertical
+        type: custom:stack-in-card
+      - cards:
+        - icon: mdi:tune-variant
+          icon_color: blue
+          primary: "Re\u017Eimy zvuku"
+          secondary: Loudness, crossfade, TV autoplay
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - alignment: start
+          chips:
+          - content: Loud.
+            entity: switch.terasa_loudness
+            hold_action:
+              action: more-info
+            icon: mdi:volume-high
+            icon_color: "{% if is_state('switch.terasa_loudness', 'on') %}\n  blue\n\
+              {% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: Cross.
+            entity: switch.terasa_crossfade
+            hold_action:
+              action: more-info
+            icon: mdi:shuffle-variant
+            icon_color: "{% if is_state('switch.terasa_crossfade', 'on') %}\n  blue\n\
+              {% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: TV auto
+            entity: switch.terasa_tv_autoplay
+            hold_action:
+              action: more-info
+            icon: mdi:play-circle
+            icon_color: "{% if is_state('switch.terasa_tv_autoplay', 'on') %}\n  blue\n\
+              {% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          - content: Ungroup
+            entity: switch.terasa_ungroup_on_autoplay
+            hold_action:
+              action: more-info
+            icon: mdi:link-variant-off
+            icon_color: "{% if is_state('switch.terasa_ungroup_on_autoplay', 'on')\
+              \ %}\n  orange\n{% else %}\n  grey\n{% endif %}\n"
+            tap_action:
+              action: toggle
+            type: template
+          type: custom:mushroom-chips-card
+        mode: vertical
+        type: custom:stack-in-card
+      - cards:
+        - icon: mdi:equalizer
+          icon_color: blue
+          primary: Ladenie zvuku
+          secondary: "Basy, v\xFD\u0161ky, vyv\xE1\u017Eenie"
+          tap_action:
+            action: none
+          type: custom:mushroom-template-card
+        - cards:
+          - display_mode: buttons
+            entity: number.terasa_bass
+            icon: mdi:music-clef-bass
+            name: Basy
+            type: custom:mushroom-number-card
+          - display_mode: buttons
+            entity: number.terasa_treble
+            icon: mdi:music-clef-treble
+            name: "V\xFD\u0161ky"
+            type: custom:mushroom-number-card
+          - display_mode: buttons
+            entity: number.terasa_balance
+            icon: mdi:scale-balance
+            name: Balance
+            type: custom:mushroom-number-card
+          columns: 3
+          square: false
+          type: grid
+        mode: vertical
+        type: custom:stack-in-card
+      type: grid
+    title: Audio
+    type: sections
