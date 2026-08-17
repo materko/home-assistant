@@ -259,9 +259,14 @@ actions:
             after: !input nocny_od
             before: !input nocny_do
         sequence:
-          - action: homeassistant.turn_on
-            target:
-              entity_id: !input svetla_nocne
+          - alias: Zapni len ak nieco z tejto sady este nesvieti
+            if:
+              - condition: template
+                value_template: "{{ expand(svetla_nocne) | rejectattr('state', 'eq', 'on') | list | count > 0 }}"
+            then:
+              - action: homeassistant.turn_on
+                target:
+                  entity_id: !input svetla_nocne
 
       - alias: Pohyb - je dost svetla
         conditions:
@@ -270,18 +275,28 @@ actions:
           - condition: template
             value_template: "{{ not je_tma }}"
         sequence:
-          - action: homeassistant.turn_on
-            target:
-              entity_id: !input svetla_pri_svetle
+          - alias: Zapni len ak nieco z tejto sady este nesvieti
+            if:
+              - condition: template
+                value_template: "{{ expand(svetla_pri_svetle) | rejectattr('state', 'eq', 'on') | list | count > 0 }}"
+            then:
+              - action: homeassistant.turn_on
+                target:
+                  entity_id: !input svetla_pri_svetle
 
       - alias: Pohyb - normalne zapnutie
         conditions:
           - condition: trigger
             id: pohyb
         sequence:
-          - action: homeassistant.turn_on
-            target:
-              entity_id: !input svetla_hlavne
+          - alias: Zapni len ak nieco z tejto sady este nesvieti
+            if:
+              - condition: template
+                value_template: "{{ expand(svetla_hlavne) | rejectattr('state', 'eq', 'on') | list | count > 0 }}"
+            then:
+              - action: homeassistant.turn_on
+                target:
+                  entity_id: !input svetla_hlavne
 
       - alias: Odchod - vypni vsetko, ak su vsetky senzory v pokoji
         conditions:
@@ -293,9 +308,14 @@ actions:
                  | selectattr('state', 'in', stavy_pohybu)
                  | list | count == 0 }}
         sequence:
-          - action: homeassistant.turn_off
-            target:
-              entity_id: "{{ svetla_vsetky }}"
+          - alias: Vypni len ak vobec nieco svieti
+            if:
+              - condition: template
+                value_template: "{{ expand(svetla_vsetky) | selectattr('state', 'eq', 'on') | list | count > 0 }}"
+            then:
+              - action: homeassistant.turn_off
+                target:
+                  entity_id: "{{ svetla_vsetky }}"
 
       - alias: Poistka - vypni, ak uz nikto nie je
         conditions:
@@ -307,6 +327,11 @@ actions:
                  | selectattr('state', 'in', stavy_pohybu)
                  | list | count == 0 }}
         sequence:
-          - action: homeassistant.turn_off
-            target:
-              entity_id: "{{ svetla_vsetky }}"
+          - alias: Vypni len ak vobec nieco svieti
+            if:
+              - condition: template
+                value_template: "{{ expand(svetla_vsetky) | selectattr('state', 'eq', 'on') | list | count > 0 }}"
+            then:
+              - action: homeassistant.turn_off
+                target:
+                  entity_id: "{{ svetla_vsetky }}"
