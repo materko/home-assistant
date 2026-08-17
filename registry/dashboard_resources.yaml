@@ -1,0 +1,31 @@
+# Lovelace resources (custom karty z HACS)
+# Po čistej inštalácii najprv nainštaluj HACS balíky z inventory/hacs.md,
+# resources sa potom zvyčajne zaregistrujú samy.
+
+resources:
+  - url: /hacsfiles/mushroom-strategy/mushroom-strategy.js
+    type: module
+  - url: /hacsfiles/lovelace-mushroom/mushroom.js
+    type: module
+  - url: /hacsfiles/apexcharts-card/apexcharts-card.js
+    type: module
+  - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
+    type: module
+  - url: /hacsfiles/stack-in-card/stack-in-card.js
+    type: module
+  - url: /hacsfiles/lovelace-auto-entities/auto-entities.js
+    type: module
+  - url: /hacsfiles/lovelace-fold-entity-row/fold-entity-row.js
+    type: module
+  - url: /hacsfiles/button-card/button-card.js
+    type: module
+  - url: /hacsfiles/lovelace-card-mod/card-mod.js
+    type: module
+  - url: /hacsfiles/config-editor-card/config-editor-card.js
+    type: module
+  - url: /hacsfiles/lovelace-windrose-card/windrose-card.js
+    type: module
+  - url: /hacsfiles/weather-forecast-extended/weatherforecastextended.js
+    type: module
+  - url: /hacsfiles/camera-gallery-card/camera-gallery-card.js
+    type: module

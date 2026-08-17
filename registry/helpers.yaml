@@ -1,0 +1,79 @@
+# Helpery vytvorené cez UI (žijú v .storage, preto sú tu exportované)
+# Prázdne typy: input_text, input_select, input_button, counter, timer, schedule
+
+input_boolean:
+  ir_dekoracne_svetlo:
+    name: IR light big
+    icon: "mdi:lightbulb-variant-outline"
+    # entity_id: input_boolean.ir_light_big
+  ir_light_small:
+    name: IR light small
+    icon: "mdi:lightbulb-variant-outline"
+  futura_dovolenka_editor:
+    name: Futura dovolenka editor
+    icon: "mdi:calendar-edit"
+  bazen_led_svetlo:
+    name: Bazen LED svetlo
+    icon: "mdi:led-strip-variant"
+  bazen_wellness_trysky:
+    name: Bazen wellness trysky
+    icon: "mdi:waves"
+
+input_number:
+  bazen_ph_minus_objem_kanistra:
+    name: Bazen pH minus objem kanistra
+    icon: "mdi:flask"
+    min: 0
+    max: 60
+    step: 0.5
+    unit_of_measurement: L
+    mode: box
+  bazen_algicid_objem_kanistra:
+    name: Bazen algicid objem kanistra
+    icon: "mdi:bacteria"
+    min: 0
+    max: 60
+    step: 0.5
+    unit_of_measurement: L
+    mode: box
+  kamery_predzaznam_alarmu:
+    name: Kamery predzaznam alarmu
+    icon: "mdi:rewind"
+    min: 0
+    max: 30
+    step: 1
+    unit_of_measurement: s
+    mode: box
+  kamery_dlzka_klipu_alarmu:
+    name: "Kamery – dĺžka klipu alarmu"
+    icon: "mdi:timer-outline"
+    min: 5
+    max: 300
+    step: 1
+    unit_of_measurement: s
+    mode: box
+  bazen_trvanie_posledneho_dopustania:
+    name: "Bazén - trvanie posledného dopúšťania"
+    icon: "mdi:timer-sand"
+    min: 0
+    max: 600
+    step: 0.1
+    unit_of_measurement: min
+    mode: box
+
+input_datetime:
+  futura_dovolenka_od:
+    name: Futura dovolenka od
+    icon: "mdi:calendar-start"
+    has_date: true
+    has_time: true
+  futura_dovolenka_do:
+    name: Futura dovolenka do
+    icon: "mdi:calendar-end"
+    has_date: true
+    has_time: true
+  bazen_posledne_dopustanie_vody:
+    name: "Bazén - posledné dopúšťanie vody"
+    icon: "mdi:water-plus"
+    has_date: true
+    has_time: true
