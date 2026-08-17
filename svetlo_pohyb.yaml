@@ -8,6 +8,7 @@ blueprint:
     Nahradza trojicu automatizacii ZAPNUTIE / VYPNUTIE / VYPNUTIE Xmin
     pre jednu miestnost.
   domain: automation
+  source_url: https://github.com/materko/home-assistant/blob/main/svetlo_pohyb.yaml
   input:
 
     senzory:

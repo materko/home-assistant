@@ -1,114 +1,79 @@
-# Home Assistant — konfigurácia
+# Home Assistant blueprint — Svetlo na pohyb
 
-Verzionovaná konfigurácia domácej inštancie Home Assistant.
-Repozitár sa aktualizuje **automaticky**, denne o 04:30.
+Blueprint pre Home Assistant, ktorý jednou automatizáciou nahradí obvyklú trojicu
+*zapni pri pohybe* / *zhasni po odchode* / *poistka po X minútach* pre jednu miestnosť.
 
-- **Core** 2026.8.2 · **HA OS** 18.2 · **Supervisor** 2026.07.5
-- Lovelace v `storage` režime (12 dashboardov, 13 resources)
-- 13 add-onov, 53 config entries, 40 HACS balíkov
-- 2 poschodia / 12 miestností
+## Import
 
-## Ako to funguje
+[![Import blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fmaterko%2Fhome-assistant%2Fblob%2Fmain%2Fsvetlo_pohyb.yaml)
 
-Export robí add-on [Git Exporter](https://github.com/Poeschl-HomeAssistant-Addons/git-exporter)
-(v1.17.1), ktorý beží priamo v Home Assistant. Add-on je typu „spusti a skonči",
-takže ho štartuje automatizácia **„Git Exporter - denny export konfiguracie"**
-každý deň o 04:30. Pri každom behu spraví commit a push.
+Alebo ručne: **Settings → Automations & Scenes → Blueprints → Import Blueprint** a vlož URL súboru `svetlo_pohyb.yaml`.
 
-Add-on má vstavanú kontrolu tajomstiev — ak nájde heslo v plaintexte,
-commit **zastaví**. To je funkcia, nie chyba.
+## Čo rieši
 
-### Čo generuje add-on
+Pri stavbe „svetlo na pohyb" cez UI zvyčajne vzniknú tri automatizácie na miestnosť.
+Pri viacerých miestnostiach sa kopírujú a rozchádzajú — oprava logiky sa musí spraviť
+všade zvlášť. Tento blueprint drží logiku na jednom mieste.
 
-| Cesta | Obsah |
-|---|---|
-| `config/` | `configuration.yaml`, `automations.yaml`, `scripts.yaml`, `scenes.yaml`, `packages/`, `themes/`, `blueprints/` |
-| `lovelace/` | všetkých 12 dashboardov zo `storage` režimu + resources |
-| `addons/` | zoznam registrovaných add-on repozitárov |
+Zvláda aj prípady, ktoré základný `motion_light` nepokrýva:
 
-### Čo add-on nevie a je tu doplnené ručne
+- **PIR aj occupancy naraz** — PIR reaguje rýchlo, occupancy (mmWave) drží svetlo
+  zapnuté, kým v miestnosti niekto naozaj je. Occupancy je voliteľné.
+- **Senzory, ktoré nehlásia `on`/`off`** — napr. `motion_state` s hodnotami
+  `large` / `small` / `none`. Stavy sú konfigurovateľné.
+- **Rôzne sady svetiel podľa svetelnosti** — pod hranicou luxu sa zapne hlavná sada,
+  nad ňou iná (typicky slabšie svetlo pri zrkadle namiesto stropného).
+- **Nočný režim** — v zadanom časovom okne sa zapne tretia sada.
+- **Poistka** — ak svetlo svieti dlhšie než limit a nikto tam nie je, zhasne.
+  Chráni pred senzorom zaseknutým v stave „obsadené".
 
-| Cesta | Obsah |
-|---|---|
-| `registry/` | miestnosti a poschodia, helpery, osoby — žijú v `.storage`, add-on ich neexportuje |
-| `inventory/` | add-ony s verziami, integrácie, HACS balíky vrátane vlastných forkov |
-| `tools/ha_export.py` | záložný ručný exportér cez HA API (viď nižšie) |
+## Vstupy
 
-Tieto súbory sú **snapshot k 17. 8. 2026** — add-on ich neprepisuje, takže po
-väčších zmenách v HA ich treba obnoviť ručne.
+| Vstup | Povinné | Default | Poznámka |
+|---|---|---|---|
+| `senzory_pohybu` | áno | — | viac naraz; `binary_sensor` aj `sensor` |
+| `senzory_pritomnosti` | nie | `[]` | prázdne = vypína sa podľa PIR |
+| `stavy_pohybu` | nie | `on`, `large`, `small` | čo znamená pohyb |
+| `stavy_pokoja` | nie | `off`, `none` | čo znamená pokoj |
+| `svetla_hlavne` | áno | — | viac naraz, `switch` aj `light` |
+| `svetla_nocne` | nie | `[]` | prázdne = v noci sa nezapne nič |
+| `svetla_pri_svetle` | nie | `[]` | prázdne = pri dostatku svetla sa nezapne nič |
+| `cakanie_po_odchode` | nie | 30 s | pokoj na všetkých senzoroch pred zhasnutím |
+| `max_cas_svietenia` | nie | 10 min | poistka |
+| `nocny_rezim_zapnuty` | nie | `false` | |
+| `nocny_od` / `nocny_do` | nie | 23:00 / 06:00 | |
+| `lux_senzory` | nie | `[]` | viac senzorov → berie sa najnižšia hodnota |
+| `lux_limit` | nie | 1000 lx | hranica medzi tmou a svetlom |
 
-## Čo tu zámerne NIE JE
+## Ako sa vyberá sada svetiel
 
-- **`secrets.yaml`**, `secret.yaml`, `.env`, tokeny, heslá
-- **`custom_components/`** a **`www/community/`** — kód spravovaný cez HACS.
-  Sú to stovky MB a push kvôli nim padal na timeout. Zoznam je v `inventory/hacs.md`.
-- **Databáza** `home-assistant_v2.db` (~656 MiB histórie)
-- **`zigbee2mqtt/coordinator_backup.json`** — obsahuje sieťový kľúč Zigbee siete
-- **`zigbee2mqtt/configuration.yaml`** — má MQTT heslo v plaintexte
-- **ESPHome konfigurácie** — export je vypnutý, viď nižšie
-- **Poverenia integrácií** — po obnove treba každú integráciu prepojiť znova
+Pri pohybe sa vyberie **práve jedna** sada, v tomto poradí:
 
-## Dva známe dlhy
+1. **nočná** — ak je nočný režim zapnutý a je jeho čas
+2. **pri svetle** — ak lux senzor hlási viac než limit
+3. **hlavná** — inak
 
-**1. ESPHome export je vypnutý.** Súbor `atoms3-lite-ble-proxy-0effac.yaml` má OTA
-heslo v plaintexte a kontrolór tajomstiev kvôli nemu zastavoval každý beh.
-Oprava: v ESPHome Device Builder presunúť heslo do `secrets.yaml`
+Vypína sa vždy zjednotenie všetkých troch sád, takže nezostane svietiť nič.
 
-```yaml
-# secrets.yaml
-ota_password: "..."
+Bez lux senzorov sa vždy vyhodnocuje ako tma. Ak sú lux senzory nedostupné, správa sa
+to rovnako — radšej zapnúť než nechať človeka v tme.
 
-# atoms3-lite-ble-proxy-0effac.yaml
-password: !secret ota_password
-```
+## Kedy sa zhasína
 
-Pri nezmenenej hodnote netreba zariadenie preflashovať. Potom v konfigurácii
-add-onu prepnúť `export.esphome` späť na `true`.
+Buď keď sú **všetky** senzory (PIR aj occupancy) v pokoji po dobu `cakanie_po_odchode`,
+alebo keď poistka zistí, že svetlo svieti dlhšie než `max_cas_svietenia` a nikto tam nie je.
 
-**2. Zigbee2MQTT `configuration.yaml`** je vylúčený z rovnakého dôvodu.
-Z2M má **inú** syntax než HA — súbor `secret.yaml` vedľa `configuration.yaml`:
+Blueprint neposiela príkaz, keď už je stav správny — nezapína to, čo svieti, a nevypína
+to, čo je zhasnuté. Pri PIR senzoroch, ktoré pulzujú často, to ušetrí veľa zbytočnej
+prevádzky na Zigbee sieti.
 
-```yaml
-# configuration.yaml
-mqtt:
-  password: '!secret.yaml password'
-```
+## Poznámky
 
-Názov súboru vrátane prípony, kľúč za medzerou, úvodzovky povinné.
-Po oprave odstrániť príslušný riadok z `exclude` v konfigurácii add-onu.
+- Používa výhradne `entity_id`, žiadne `device_id` — nerozbije sa pri prepárovaní zariadenia.
+- `mode: restart`.
+- Voliteľné vstupy s prázdnym zoznamom sú v poriadku — príslušný trigger sa jednoducho
+  nikdy nespustí.
 
-## Vzťah k plnej zálohe
+## Licencia
 
-| | Git (tento repo) | Plná záloha → Google Drive |
-|---|---|---|
-| Obsah | čitateľná konfigurácia | všetko vrátane tajomstiev a DB |
-| Veľkosť | ~1 MB | ~785 MB |
-| Načo | história zmien, diff | disaster recovery |
-
-Automatická záloha beží denne o 5:16 do `hassio.local` + Google Drive, retencia 3 kópie.
-Zigbee sieť (`coordinator_backup.json`) je **len** v nej — bez nej sa všetky Zigbee
-zariadenia musia párovať odznova.
-
-> **Šifrovací kľúč záloh** nie je v tomto repe a ani tu byť nesmie.
-> Bez neho sú zálohy v Google Drive nepoužiteľné — patrí do password manažéra.
-
-## Záložný ručný export
-
-`tools/ha_export.py` vytiahne cez HA API to, čo add-on nevie — registre, helpery,
-osoby. Potrebuje `.env` v koreni repa (je v `.gitignore`):
-
-```
-HA_URL=http://192.168.68.55:8123
-HA_TOKEN=<long-lived access token>
-```
-
-```bash
-pip install pyyaml websocket-client
-python tools/ha_export.py
-```
-
-## Poznámka o obsahu
-
-Repo obsahuje interné IP adresy, ID zariadení, MAC adresy a mená členov domácnosti.
-Kontrola IP adries je v add-one **vypnutá**, lebo by inak zhodila každý beh.
-Heslá ani tokeny tu nie sú — **drž tento repozitár privátny**.
+MIT

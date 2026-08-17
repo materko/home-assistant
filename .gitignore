@@ -1,34 +1,4 @@
-# --- tajomstvá a poverenia ---
-secrets.yaml
-.storage/
-.cloud/
-*.token
-*.key
-.env
-ip_bans.yaml
-known_devices.yaml
-
-# --- databáza a logy ---
-*.db
-*.db-shm
-*.db-wal
-*.log
-*.log.*
-home-assistant.log*
-OZW_Log.txt
-
-# --- runtime / cache ---
-tts/
-deps/
-tmp/
-backups/
-.uuid
 __pycache__/
 *.pyc
-
-# --- OS ---
 .DS_Store
 Thumbs.db
-desktop.ini
-
-obnova/
