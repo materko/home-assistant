@@ -13,9 +13,10 @@ Verzionovaná konfigurácia domácej inštancie Home Assistant.
 |---|---|
 | `automations/` | 43 automatizácií — formát zhodný s `/config/automations.yaml` |
 | `scripts/` | 14 skriptov — formát zhodný s `/config/scripts.yaml` |
-| `dashboards/` | Lovelace dashboardy zo `storage` režimu |
+| `dashboards/` | Lovelace dashboardy zo `storage` režimu — **zatiaľ len 2 z 12**, viď nižšie |
 | `registry/` | Miestnosti, poschodia, helpery, osoby, Lovelace resources |
 | `inventory/` | Zoznam add-onov, integrácií a HACS balíkov |
+| `tools/` | `ha_export.py` — obnoví celý export z bežiacej inštancie |
 
 ## Ako to vzniklo
 
@@ -26,6 +27,25 @@ konfiguráciu cez API a zapísal ju do čitateľného YAML.
 
 Export je **snapshot**, nie živá synchronizácia. Po väčších zmenách v HA ho treba
 zopakovať.
+
+## Obnovenie exportu
+
+```bash
+pip install pyyaml websocket-client
+python tools/ha_export.py
+```
+
+Skript potrebuje `.env` v koreni repa (je v `.gitignore`, necommituje sa):
+
+```
+HA_URL=http://192.168.68.55:8123
+HA_TOKEN=<long-lived access token>
+```
+
+Token vytvoríš v HA: **Profil → Bezpečnosť → Long-lived access tokens**.
+
+Prvý beh doplní zvyšných 10 dashboardov, ktoré v tomto commite chýbajú —
+sú príliš objemné (jeden má 33 kB) na ručný prenos.
 
 ## Čo tu zámerne NIE JE
 
