@@ -1,0 +1,312 @@
+blueprint:
+  name: Svetlo na pohyb (PIR + occupancy)
+  description: >
+    Zapne svetlo pri pohybe, drzi ho zapnute pokial je detekovana pritomnost,
+    vypne ho po odchode a ma poistku na maximalny cas svietenia.
+    Podporuje viacero PIR aj occupancy senzorov (occupancy je volitelny),
+    viacero spinanych svetiel a rozne sady svetiel podla luxu a podla casu.
+    Nahradza trojicu automatizacii ZAPNUTIE / VYPNUTIE / VYPNUTIE Xmin
+    pre jednu miestnost.
+  domain: automation
+  input:
+
+    senzory:
+      name: Senzory
+      input:
+        senzory_pohybu:
+          name: Senzory pohybu (PIR)
+          description: >
+            Jeden alebo viac. Moze to byt binary_sensor (motion / occupancy)
+            alebo sensor (napr. motion_state s hodnotami large / small).
+            Staci ak sa spusti hocijaky z nich.
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - domain: binary_sensor
+                - domain: sensor
+
+        senzory_pritomnosti:
+          name: Senzory pritomnosti (occupancy) - volitelne
+          description: >
+            Nechaj prazdne, ak mas len PIR. Vtedy sa vypina podla toho,
+            ze PIR prestal hlasit pohyb. Ak vyplnis, svetlo zostane
+            zapnute pokial hoci len jeden z nich hlasi pritomnost.
+          default: []
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - domain: binary_sensor
+
+        stavy_pohybu:
+          name: Stavy, ktore znamenaju pohyb / pritomnost
+          default:
+            - "on"
+            - "large"
+            - "small"
+          selector:
+            select:
+              multiple: true
+              custom_value: true
+              options:
+                - "on"
+                - "large"
+                - "small"
+
+        stavy_pokoja:
+          name: Stavy, ktore znamenaju pokoj
+          default:
+            - "off"
+            - "none"
+          selector:
+            select:
+              multiple: true
+              custom_value: true
+              options:
+                - "off"
+                - "none"
+
+    svetla:
+      name: Ovladane svetla
+      description: >
+        Vyberie sa vzdy len jedna sada, v tomto poradi:
+        nocna (ak je nocny rezim zapnuty a je jeho cas) ->
+        pri svetle (ak lux senzor hlasi viac ako limit) -> hlavna.
+        Vypina sa vzdy vsetko zo vsetkych troch sad.
+      input:
+        svetla_hlavne:
+          name: Hlavne svetla
+          description: Bezna sada. Zapne sa, ked nie je nocny rezim a je dostatocna tma.
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - domain: switch
+                - domain: light
+
+        svetla_nocne:
+          name: Nocne svetla - volitelne
+          description: >
+            Zapnu sa namiesto hlavnych v case nocneho rezimu.
+            Nechaj prazdne, ak nechces v noci zapinat nic.
+          default: []
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - domain: switch
+                - domain: light
+
+        svetla_pri_svetle:
+          name: Svetla pri dostatku svetla - volitelne
+          description: >
+            Zapnu sa namiesto hlavnych, ked je vonku / v miestnosti dost svetla.
+            Prazdne = pri dostatku svetla sa nezapne nic.
+          default: []
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - domain: switch
+                - domain: light
+
+    casy:
+      name: Casovanie
+      input:
+        cakanie_po_odchode:
+          name: Vypnut po odchode
+          description: Ako dlho musi byt pokoj na vsetkych senzoroch, kym sa vypne.
+          default:
+            minutes: 0
+            seconds: 30
+          selector:
+            duration:
+
+        max_cas_svietenia:
+          name: Poistka - maximalny cas svietenia
+          description: Ak svieti dlhsie a nikto tam nie je, vypne sa. Chrani pred zaseknutym senzorom.
+          default:
+            minutes: 10
+            seconds: 0
+          selector:
+            duration:
+
+    nocny_rezim:
+      name: Nocny rezim (volitelne)
+      input:
+        nocny_rezim_zapnuty:
+          name: Pouzivat nocny rezim
+          default: false
+          selector:
+            boolean:
+
+        nocny_od:
+          name: Nocny rezim od
+          default: "23:00:00"
+          selector:
+            time:
+
+        nocny_do:
+          name: Nocny rezim do
+          default: "06:00:00"
+          selector:
+            time:
+
+    svetelnost:
+      name: Svetelnost (volitelne)
+      input:
+        lux_senzory:
+          name: Lux senzory
+          description: >
+            Ak vyplnis viac, berie sa najnizsia nameraná hodnota.
+            Prazdne = lux sa neriesi, vzdy sa berie ako tma.
+          default: []
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - domain: sensor
+                  device_class: illuminance
+
+        lux_limit:
+          name: Hranica medzi tmou a svetlom
+          default: 1000
+          selector:
+            number:
+              min: 0
+              max: 100000
+              unit_of_measurement: lx
+              mode: box
+
+mode: restart
+
+variables:
+  senzory_pohybu: !input senzory_pohybu
+  senzory_pritomnosti: !input senzory_pritomnosti
+  stavy_pohybu: !input stavy_pohybu
+  svetla_hlavne: !input svetla_hlavne
+  svetla_nocne: !input svetla_nocne
+  svetla_pri_svetle: !input svetla_pri_svetle
+  lux_senzory: !input lux_senzory
+  lux_limit: !input lux_limit
+  nocny_rezim_zapnuty: !input nocny_rezim_zapnuty
+
+  # vsetky senzory, ktore rozhoduju o tom, ci je miestnost prazdna
+  senzory_vsetky: "{{ (senzory_pohybu + senzory_pritomnosti) | unique | list }}"
+
+  # vsetko, co sa moze zapnut - to iste sa aj vypina
+  svetla_vsetky: "{{ (svetla_hlavne + svetla_nocne + svetla_pri_svetle) | unique | list }}"
+
+  # najnizsia hodnota zo vsetkych lux senzorov; bez senzorov ber ako tmu
+  lux_hodnota: >
+    {% set hodnoty = expand(lux_senzory)
+         | map(attribute='state') | map('float', -1) | select('>=', 0) | list %}
+    {{ hodnoty | min if hodnoty | count > 0 else -1 }}
+
+  je_tma: "{{ lux_hodnota < 0 or lux_hodnota < lux_limit }}"
+
+triggers:
+  - id: pohyb
+    trigger: state
+    entity_id: !input senzory_pohybu
+    to: !input stavy_pohybu
+
+  # odchod podla occupancy senzorov (ak nejake su)
+  - id: odchod
+    trigger: state
+    entity_id: !input senzory_pritomnosti
+    to: !input stavy_pokoja
+    for: !input cakanie_po_odchode
+
+  # odchod podla PIR (funguje aj ked occupancy nemas vobec)
+  - id: odchod
+    trigger: state
+    entity_id: !input senzory_pohybu
+    to: !input stavy_pokoja
+    for: !input cakanie_po_odchode
+
+  - id: poistka
+    trigger: state
+    entity_id: !input svetla_hlavne
+    to: "on"
+    for: !input max_cas_svietenia
+
+  - id: poistka
+    trigger: state
+    entity_id: !input svetla_nocne
+    to: "on"
+    for: !input max_cas_svietenia
+
+  - id: poistka
+    trigger: state
+    entity_id: !input svetla_pri_svetle
+    to: "on"
+    for: !input max_cas_svietenia
+
+conditions: []
+
+actions:
+  - choose:
+
+      - alias: Pohyb - nocny rezim
+        conditions:
+          - condition: trigger
+            id: pohyb
+          - condition: template
+            value_template: "{{ nocny_rezim_zapnuty }}"
+          - condition: time
+            after: !input nocny_od
+            before: !input nocny_do
+        sequence:
+          - action: homeassistant.turn_on
+            target:
+              entity_id: !input svetla_nocne
+
+      - alias: Pohyb - je dost svetla
+        conditions:
+          - condition: trigger
+            id: pohyb
+          - condition: template
+            value_template: "{{ not je_tma }}"
+        sequence:
+          - action: homeassistant.turn_on
+            target:
+              entity_id: !input svetla_pri_svetle
+
+      - alias: Pohyb - normalne zapnutie
+        conditions:
+          - condition: trigger
+            id: pohyb
+        sequence:
+          - action: homeassistant.turn_on
+            target:
+              entity_id: !input svetla_hlavne
+
+      - alias: Odchod - vypni vsetko, ak su vsetky senzory v pokoji
+        conditions:
+          - condition: trigger
+            id: odchod
+          - condition: template
+            value_template: >
+              {{ expand(senzory_vsetky)
+                 | selectattr('state', 'in', stavy_pohybu)
+                 | list | count == 0 }}
+        sequence:
+          - action: homeassistant.turn_off
+            target:
+              entity_id: "{{ svetla_vsetky }}"
+
+      - alias: Poistka - vypni, ak uz nikto nie je
+        conditions:
+          - condition: trigger
+            id: poistka
+          - condition: template
+            value_template: >
+              {{ expand(senzory_vsetky)
+                 | selectattr('state', 'in', stavy_pohybu)
+                 | list | count == 0 }}
+        sequence:
+          - action: homeassistant.turn_off
+            target:
+              entity_id: "{{ svetla_vsetky }}"
